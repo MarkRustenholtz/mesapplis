@@ -1143,56 +1143,94 @@ function addPasseur() {
     }
 
     function onScanSuccess(decodedText) {
-      try {
-        const parsed = parseQrPayload(decodedText);
-        if (!parsed) return;
-        const { nigend, counts, pretty } = parsed;
-        if (state.scannedNigends.includes(nigend)) {
-          logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
-          return;
-        }
-        state.scannedNigends.push(nigend);
-        ['train','bus','vl','pl'].forEach(k=>{
-          state.scansAgg[k].v  += counts[k].v;
-          state.scansAgg[k].cv += counts[k].cv;
-          state.scansAgg[k].cf += counts[k].cf;
-        });
-        const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
-        if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
-          state.esrList.push({
-            grade: parsed.grade,
-            nom: parsed.nom,
-            nigend: parsed.nigend,
-            crt: parsed.crt
-          });
-          renderEsrList();
-          populateEsrSelects();
-          debounceSave();
-        }
-        state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
-        updateResumeEsrUI();
-        debounceSave();
-        logScan('QR ajouté : ' + nigend);
+  try {
+    // === 1) Cas JSON venant de ESI+Visa ===
+    try {
+      const parsedJson = JSON.parse(decodedText);
+      if (parsedJson && parsedJson.type_fiche) {
+        const obj = {
+          age: parsedJson.statut,
+          sexe: parsedJson.genre,
+          ageNum: parsedJson.age,
+          nationalite: parsedJson.nationalite,
+          lieu: parsedJson.lieu,
+          heure: parsedJson.heure,
+          suites: parsedJson.suites_donnees
+        };
 
-        // pause 2s then resume
-        if (html5QrCode && isScanning) {
-          isScanning = false;
-          html5QrCode.stop().then(() => {
-            setTimeout(() => {
-              if (document.getElementById('qrModal').style.display !== 'none') {
-                html5QrCode.start(
-                  { facingMode: "environment" },
-                  { fps: 10, qrbox: 250 },
-                  onScanSuccess
-                ).then(()=>{ isScanning=true; }).catch(()=>{});
-              }
-            }, 2000);
-          }).catch(()=>{});
+        if (parsedJson.type_fiche === "ESI") {
+          state.esiList.push(obj);
+          renderEsiList();
+          debounceSave();
+          logScan("QR JSON ESI ajouté automatiquement");
+        } else if (parsedJson.type_fiche === "PASSEUR") {
+          state.passeurList.push(obj);
+          renderPasseurList();
+          debounceSave();
+          logScan("QR JSON PASSEUR ajouté automatiquement");
         }
-      } catch(e) {
-        console.error(e);
+        return; // on arrête ici, pas besoin d'aller au parsing texte
       }
+    } catch(e) {
+      // pas un JSON valide, on continue avec le parsing texte
     }
+
+    // === 2) Cas ESR ou comptage (format texte existant) ===
+    const parsed = parseQrPayload(decodedText);
+    if (!parsed) return;
+    const { nigend, counts, pretty } = parsed;
+
+    if (state.scannedNigends.includes(nigend)) {
+      logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
+      return;
+    }
+    state.scannedNigends.push(nigend);
+
+    ['train','bus','vl','pl'].forEach(k=>{
+      state.scansAgg[k].v  += counts[k].v;
+      state.scansAgg[k].cv += counts[k].cv;
+      state.scansAgg[k].cf += counts[k].cf;
+    });
+
+    const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
+    if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
+      state.esrList.push({
+        grade: parsed.grade,
+        nom: parsed.nom,
+        nigend: parsed.nigend,
+        crt: parsed.crt
+      });
+      renderEsrList();
+      populateEsrSelects();
+      debounceSave();
+    }
+
+    state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
+    updateResumeEsrUI();
+    debounceSave();
+    logScan('QR ESR ajouté : ' + nigend);
+
+    // pause 2s puis reprise auto du scan
+    if (html5QrCode && isScanning) {
+      isScanning = false;
+      html5QrCode.stop().then(() => {
+        setTimeout(() => {
+          if (document.getElementById('qrModal').style.display !== 'none') {
+            html5QrCode.start(
+              { facingMode: "environment" },
+              { fps: 10, qrbox: 250 },
+              onScanSuccess
+            ).then(()=>{ isScanning=true; }).catch(()=>{});
+          }
+        }, 2000);
+      }).catch(()=>{});
+    }
+
+  } catch(e) {
+    console.error("Erreur onScanSuccess :", e);
+  }
+}
+
 
     function parseQrPayload(raw){
       const lines = String(raw).split(/\n+/).map(l=>l.trim()).filter(Boolean);
