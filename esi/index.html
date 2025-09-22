@@ -8,6 +8,7 @@
 <meta name="theme-color" content="#0d6efd">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
     h1 { text-align: center; }
@@ -126,9 +127,8 @@
       <label>Sexe
           <select id="sexe">
               <option value="">--Sélectionner--</option>
-              <option value="Masculin">Masculin</option>
-              <option value="Féminin">Féminin</option>
-              <option value="Autre">Autre</option>
+              <option value="Homme">Masculin</option>
+              <option value="Femme">Féminin</option>
           </select>
       </label>
       <label>Nationalité<input type="text" id="nationalite" autocomplete="off"></label>
@@ -175,6 +175,10 @@
       <input type="text" id="autreTexte" placeholder="Précisez..." style="width: 100%; margin-top: 5px; padding: 8px;" disabled>
 
       <button type="submit">Enregistrer la fiche</button>
+	  <button type="button" id="btnQRBF">Générer QR code Border Force</button>
+<button type="button" id="btnCopierBF">Copier données Border Force</button>
+<canvas id="canvasQRBF" style="margin-top:10px;"></canvas>
+
   </form>
 
   <h2>Historique des fiches</h2>
@@ -348,7 +352,44 @@ Lieu: ${fiche.lieuInterpellation} | Suites données: ${fiche.suitesDonnees || ''
         historiqueDiv.appendChild(ficheDiv);
     });
 }
+function getFichePourBF(fiche) {
+    const sexe = fiche.sexe;
+    const age = parseInt(fiche.age, 10);
+    return {
+        heure: fiche.heure,
+        statut: sexe === "Homme" ? (age >= 18 ? "Majeur" : "Mineur") 
+                                  : (age >= 18 ? "Majeure" : "Mineure"),
+        genre: sexe,
+        age: age,
+        nationalite: fiche.nationalite,
+        lieu: fiche.lieuInterpellation,
+        suites_donnees: fiche.suitesDonnees,
+        type_fiche: fiche.categorie // ESI ou PASSEUR
+    };
+}
 
+// Générer QR code Border Force
+document.getElementById('btnQRBF').addEventListener('click', () => {
+    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+    if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
+    const lastFiche = fiches[fiches.length - 1]; // dernière fiche
+    const ficheBF = getFichePourBF(lastFiche);
+    QRCode.toCanvas(document.getElementById('canvasQRBF'), JSON.stringify(ficheBF), {width:200}, function(error){
+        if(error) console.error(error);
+        else console.log("QR code Border Force généré !");
+    });
+});
+
+// Copier les données Border Force
+document.getElementById('btnCopierBF').addEventListener('click', () => {
+    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+    if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
+    const lastFiche = fiches[fiches.length - 1]; // dernière fiche
+    const ficheBF = getFichePourBF(lastFiche);
+    navigator.clipboard.writeText(JSON.stringify(ficheBF))
+        .then(() => alert("Données Border Force copiées !"))
+        .catch(err => console.error("Erreur copie : ", err));
+});
 function supprimerFiche(index) {
     if (confirm("Voulez-vous vraiment supprimer cette fiche ?")) {
         const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
