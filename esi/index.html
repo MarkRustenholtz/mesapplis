@@ -178,7 +178,8 @@
       <button type="submit">Enregistrer la fiche</button>
 	  <button type="button" id="btnQRBF">Générer tous les QR code dans Border Force</button>
 <button type="button" id="btnCopierBF">Copier les fiches dans Border Force</button>
-<canvas id="canvasQRBF" style="margin-top:10px;"></canvas>
+<div id="qrBF" style="margin-top:10px;"></div>
+
 
   </form>
 
@@ -373,11 +374,30 @@ function getFichePourBF(fiche) {
     };
 }
 function generateQrForFiche(fiche) {
-    const ficheBF = getFichePourBF(fiche);
-    const qrCanvas = document.createElement('canvas');
-    QRCode.toCanvas(qrCanvas, JSON.stringify(ficheBF), {width:200}, function(error){
-        if(error) console.error(error);
-    });
+  const ficheBF = getFichePourBF(fiche);
+
+  // petite modale
+  const modal = document.createElement('div');
+  modal.style = "position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;";
+  modal.innerHTML = `
+    <div style="background:#fff;padding:20px;border-radius:10px;max-width:90%;text-align:center">
+      <h3>QR Code Fiche</h3>
+      <div id="qrHolder" style="margin:10px auto"></div>
+      <button onclick="document.body.removeChild(this.parentNode.parentNode)" style="margin-top:10px;padding:6px 12px;">Fermer</button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+
+  const holder = modal.querySelector('#qrHolder');
+  holder.innerHTML = '';
+  new QRCode(holder, {
+    text: JSON.stringify(ficheBF),
+    width: 200,
+    height: 200,
+    correctLevel: QRCode.CorrectLevel.M
+  });
+}
+
 function copierFichePourBF(fiche) {
     const ficheBF = getFichePourBF(fiche);
     const data = JSON.stringify(ficheBF);
@@ -399,16 +419,21 @@ function copierFichePourBF(fiche) {
     document.body.appendChild(modal);
 }
 
-// Générer QR code Border Force
+// Générer QR code Border Force (avec qrcodejs)
 document.getElementById('btnQRBF').addEventListener('click', () => {
-    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-    if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
-    const lastFiche = fiches[fiches.length - 1]; // dernière fiche
-    const ficheBF = getFichePourBF(lastFiche);
-    QRCode.toCanvas(document.getElementById('canvasQRBF'), JSON.stringify(ficheBF), {width:200}, function(error){
-        if(error) console.error(error);
-        else console.log("QR code Border Force généré !");
-    });
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+  if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
+  const lastFiche = fiches[fiches.length - 1];
+  const ficheBF = getFichePourBF(lastFiche);
+
+  const container = document.getElementById('qrBF');
+  container.innerHTML = ''; // reset
+  new QRCode(container, {
+    text: JSON.stringify(ficheBF),
+    width: 200,
+    height: 200,
+    correctLevel: QRCode.CorrectLevel.M
+  });
 });
 
 // Copier les données Border Force
