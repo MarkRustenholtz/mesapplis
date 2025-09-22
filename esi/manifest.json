@@ -1,0 +1,21 @@
+{
+  "name": "Application ESI + Assistant Visa",
+  "short_name": "ESI+Visa",
+  "description": "Application PWA pour ESI + Assistant Visa",
+  "start_url": "/esi/index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0d6efd",
+  "icons": [
+    {
+      "src": "/esi/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/esi/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
