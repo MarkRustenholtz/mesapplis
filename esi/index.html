@@ -8,7 +8,8 @@
 <meta name="theme-color" content="#0d6efd">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
 <style>
     body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
     h1 { text-align: center; }
@@ -175,8 +176,8 @@
       <input type="text" id="autreTexte" placeholder="Précisez..." style="width: 100%; margin-top: 5px; padding: 8px;" disabled>
 
       <button type="submit">Enregistrer la fiche</button>
-	  <button type="button" id="btnQRBF">Générer QR code Border Force</button>
-<button type="button" id="btnCopierBF">Copier données Border Force</button>
+	  <button type="button" id="btnQRBF">Générer tous les QR code dans Border Force</button>
+<button type="button" id="btnCopierBF">Copier les fiches dans Border Force</button>
 <canvas id="canvasQRBF" style="margin-top:10px;"></canvas>
 
   </form>
@@ -337,18 +338,22 @@ function afficherHistorique() {
     fiches.forEach((fiche, index) => {
         const ficheDiv = document.createElement('div');
         ficheDiv.className = 'fiche';
-        ficheDiv.innerHTML = `
-            <strong>Fiche #${index+1} ${fiche.categorie}</strong><br>
-            Nom: ${fiche.nom} ${fiche.prenom} | Sexe: ${fiche.sexe} | Nationalité: ${fiche.nationalite}<br>
-            Date de naissance: ${fiche.dateNaissance || 'Non renseignée'} | Âge: ${fiche.age} ans<br>
-           Intervention: ${fiche.heure || fiche.heureDate} le ${formatDateIntervention(fiche.dateIntervention)} 
-Lieu: ${fiche.lieuInterpellation} | Suites données: ${fiche.suitesDonnees || ''}<br>
-           Départ: ${fiche.villeDepart}, ${fiche.paysDepart} | Destination: ${fiche.villeDestination}, ${fiche.paysDestination}<br>
-            Véhicule: ${fiche.vehicule} | Immatriculation: ${fiche.immatriculation}<br>
-            Pièces d'identité: ${fiche.piecesIdentite.join(", ")}<br>
-            <button onclick="modifierFiche(${index})">Modifier</button>
-            <button onclick="supprimerFiche(${index})" class="btn-danger">Supprimer</button>
-        `;
+       ficheDiv.innerHTML = `
+    <strong>Fiche #${index+1} ${fiche.categorie}</strong><br>
+    Nom: ${fiche.nom} ${fiche.prenom} | Sexe: ${fiche.sexe} | Nationalité: ${fiche.nationalite}<br>
+    Date de naissance: ${fiche.dateNaissance || 'Non renseignée'} | Âge: ${fiche.age} ans<br>
+    Intervention: ${fiche.heure || fiche.heureDate} le ${formatDateIntervention(fiche.dateIntervention)} 
+    Lieu: ${fiche.lieuInterpellation} | Suites données: ${fiche.suitesDonnees || ''}<br>
+    Départ: ${fiche.villeDepart}, ${fiche.paysDepart} | Destination: ${fiche.villeDestination}, ${fiche.paysDestination}<br>
+    Véhicule: ${fiche.vehicule} | Immatriculation: ${fiche.immatriculation}<br>
+    Pièces d'identité: ${fiche.piecesIdentite.join(", ")}<br>
+    <button onclick="modifierFiche(${index})">Modifier</button>
+    <button onclick="supprimerFiche(${index})" class="btn-danger">Supprimer</button>
+    <button onclick='generateQrForFiche(${JSON.stringify(fiche).replace(/"/g,'&quot;')})'>QR</button>
+    <button onclick='copierFichePourBF(${JSON.stringify(fiche).replace(/"/g,'&quot;')})'>Copier</button>
+`;
+   
+
         historiqueDiv.appendChild(ficheDiv);
     });
 }
@@ -366,6 +371,32 @@ function getFichePourBF(fiche) {
         suites_donnees: fiche.suitesDonnees,
         type_fiche: fiche.categorie // ESI ou PASSEUR
     };
+}
+function generateQrForFiche(fiche) {
+    const ficheBF = getFichePourBF(fiche);
+    const qrCanvas = document.createElement('canvas');
+    QRCode.toCanvas(qrCanvas, JSON.stringify(ficheBF), {width:200}, function(error){
+        if(error) console.error(error);
+    });
+function copierFichePourBF(fiche) {
+    const ficheBF = getFichePourBF(fiche);
+    const data = JSON.stringify(ficheBF);
+    navigator.clipboard.writeText(data)
+        .then(() => alert("Données Border Force copiées !"))
+        .catch(err => console.error("Erreur copie : ", err));
+}
+
+    // Créer une petite popup avec le QR
+    const modal = document.createElement('div');
+    modal.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;";
+    modal.innerHTML = `
+      <div style="background:white;padding:20px;border-radius:10px;max-width:90%;text-align:center;">
+        <h3>QR Code Fiche</h3>
+        <div id="qrHolder"></div>
+        <button onclick="document.body.removeChild(this.parentNode.parentNode)" style="margin-top:10px;padding:6px 12px;">Fermer</button>
+      </div>`;
+    modal.querySelector('#qrHolder').appendChild(qrCanvas);
+    document.body.appendChild(modal);
 }
 
 // Générer QR code Border Force
