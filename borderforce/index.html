@@ -228,7 +228,10 @@ nav button.active {
   <button onclick="window.open('https://markrustenholtz.github.io/esi/', '_blank')">
     ESI + Visa
   </button>
-  <button id="pasteEsiPasseurBtn">Coller ESI/PASSEUR</button>
+  <button id="pasteEsiBtn" class="btn-esi" title="Coller un JSON ESI/PASSEUR depuis le presse-papiers">
+  Coller ESI/PASSEUR
+</button>
+
 
 </nav>
 
@@ -1012,7 +1015,111 @@ function addPasseur() {
   debounceSave();
 }
 
-   
+  // ---------- Import ESI/PASSEUR depuis JSON (QR ou presse-papiers) ----------
+
+// Détecte si un objet ressemble à une fiche ESI+Visa
+function isEsiVisaFiche(obj) {
+  // schéma attendu côté ESI+Visa :
+  // { heure, statut, genre, age, nationalite, lieu, suites_donnees, type_fiche }
+  return obj && typeof obj === 'object' &&
+         ('type_fiche' in obj) &&
+         ('genre' in obj || 'sexe' in obj) &&
+         ('statut' in obj || 'age' in obj);
+}
+
+// Normalise une fiche ESI+Visa -> format interne Border Force
+// interne ESI : { age (Majeur/Mineur/Majeure/Mineure), sexe, ageNum, nationalite, lieu, heure, suites }
+function mapEsiVisaToInternal(f) {
+  const sexe = (f.genre || f.sexe || '').trim();               // "Homme" | "Femme"
+  const statut = (f.statut || '').trim();                      // "Majeur(e)" / "Mineur(e)"
+  const ageNum = Number.parseInt(f.age != null ? f.age : f.ageNum, 10);
+  const suites = (f.suites_donnees != null ? f.suites_donnees : f.suites) || '';
+
+  return {
+    heure: (f.heure || '').trim(),
+    age: statut || '',                  // dans ton app: "age" = statut Majeur/Mineur/Majeure/Mineure
+    sexe: sexe || '',                   // "Homme" / "Femme"
+    ageNum: Number.isFinite(ageNum) ? String(ageNum) : '', // tes formulaires stockent des strings
+    nationalite: (f.nationalite || '').trim(),
+    lieu: (f.lieu || '').trim(),
+    suites: suites.trim()
+  };
+}
+
+// Insère 1 fiche normalisée dans la bonne liste (ESI / PASSEUR)
+function insertOneFicheEsiPasseur(normalized, typeFiche) {
+  if ((typeFiche || '').toUpperCase() === 'PASSEUR') {
+    state.passeurList = state.passeurList || [];
+    state.passeurList.push({
+      heure: normalized.heure,
+      age: normalized.age,
+      sexe: normalized.sexe,
+      ageNum: normalized.ageNum,
+      nationalite: normalized.nationalite,
+      lieu: normalized.lieu,
+      suites: normalized.suites
+    });
+    renderPasseurList();
+  } else {
+    // défaut = ESI
+    state.esiList = state.esiList || [];
+    state.esiList.push({
+      heure: normalized.heure,
+      age: normalized.age,
+      sexe: normalized.sexe,
+      ageNum: normalized.ageNum,
+      nationalite: normalized.nationalite,
+      lieu: normalized.lieu,
+      suites: normalized.suites
+    });
+    renderEsiList();
+  }
+  debounceSave();
+}
+
+// Importe un payload (objet, tableau, ou texte JSON) -> retourne combien de fiches ajoutées
+function importFromEsiPasseur(payload) {
+  let arr = null;
+
+  if (typeof payload === 'string') {
+    try { payload = JSON.parse(payload); } catch { return 0; }
+  }
+
+  if (Array.isArray(payload)) {
+    arr = payload;
+  } else if (payload && typeof payload === 'object') {
+    arr = [payload];
+  } else {
+    return 0;
+  }
+
+  let added = 0;
+  arr.forEach(item => {
+    if (isEsiVisaFiche(item)) {
+      const mapped = mapEsiVisaToInternal(item);
+      const typeFiche = (item.type_fiche || 'ESI').toUpperCase();
+      insertOneFicheEsiPasseur(mapped, typeFiche);
+      added++;
+    }
+  });
+  return added;
+}
+
+// Bouton : coller depuis presse-papiers
+async function pasteFromClipboardEsiPasseur() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const n = importFromEsiPasseur(text);
+    if (n > 0) {
+      alert(`${n} fiche(s) importée(s) depuis le presse-papiers.`);
+    } else {
+      alert("Rien d'importé. Le presse-papiers ne contient pas un JSON ESI/PASSEUR valide.");
+    }
+  } catch (e) {
+    alert("Impossible de lire le presse-papiers. Autorise l'accès au presse-papiers puis réessaie.");
+  }
+}
+ 
 
     // Compte rendu generator (utilise state)
     function generateCompteRendu() {
@@ -1167,56 +1274,89 @@ function addPasseur() {
     }
 
     function onScanSuccess(decodedText) {
-      try {
-        const parsed = parseQrPayload(decodedText);
-        if (!parsed) return;
-        const { nigend, counts, pretty } = parsed;
-        if (state.scannedNigends.includes(nigend)) {
-          logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
-          return;
-        }
-        state.scannedNigends.push(nigend);
-        ['train','bus','vl','pl'].forEach(k=>{
-          state.scansAgg[k].v  += counts[k].v;
-          state.scansAgg[k].cv += counts[k].cv;
-          state.scansAgg[k].cf += counts[k].cf;
-        });
-        const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
-        if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
-          state.esrList.push({
-            grade: parsed.grade,
-            nom: parsed.nom,
-            nigend: parsed.nigend,
-            crt: parsed.crt
-          });
-          renderEsrList();
-          populateEsrSelects();
-          debounceSave();
-        }
-        state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
-        updateResumeEsrUI();
-        debounceSave();
-        logScan('QR ajouté : ' + nigend);
+  // 1) Tenter un import ESI/PASSEUR (QR venant de l'app ESI+Visa)
+  try {
+    const maybe = JSON.parse(decodedText);
+    const added = importFromEsiPasseur(maybe);
+    if (added > 0) {
+      logScan(`Import ESI/PASSEUR via QR : ${added} fiche(s).`);
 
-        // pause 2s then resume
-        if (html5QrCode && isScanning) {
-          isScanning = false;
-          html5QrCode.stop().then(() => {
-            setTimeout(() => {
-              if (document.getElementById('qrModal').style.display !== 'none') {
-                html5QrCode.start(
-                  { facingMode: "environment" },
-                  { fps: 10, qrbox: 250 },
-                  onScanSuccess
-                ).then(()=>{ isScanning=true; }).catch(()=>{});
-              }
-            }, 2000);
-          }).catch(()=>{});
-        }
-      } catch(e) {
-        console.error(e);
+      // PAUSE 2 s pour éviter de rescanner en boucle
+      if (html5QrCode && isScanning) {
+        isScanning = false;
+        html5QrCode.stop().then(() => {
+          setTimeout(() => {
+            if (document.getElementById('qrModal').style.display !== 'none') {
+              html5QrCode.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: 250 },
+                onScanSuccess
+              ).then(() => { isScanning = true; }).catch(() => {});
+            }
+          }, 2000);
+        }).catch(()=>{});
       }
+      return; // on ne va pas plus loin : c'était un ESI/PASSEUR
     }
+  } catch (_) {
+    // pas du JSON -> on continue
+  }
+
+  // 2) Sinon, on reste sur ta logique EXISTANTE (NIGEND / compage ESR)
+  try {
+    const parsed = parseQrPayload(decodedText);
+    if (!parsed) return;
+
+    const { nigend, counts, pretty } = parsed;
+    if (state.scannedNigends.includes(nigend)) {
+      logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
+      return;
+    }
+    state.scannedNigends.push(nigend);
+    ['train','bus','vl','pl'].forEach(k => {
+      state.scansAgg[k].v  += counts[k].v;
+      state.scansAgg[k].cv += counts[k].cv;
+      state.scansAgg[k].cf += counts[k].cf;
+    });
+
+    const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
+    if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
+      state.esrList.push({
+        grade: parsed.grade,
+        nom: parsed.nom,
+        nigend: parsed.nigend,
+        crt: parsed.crt
+      });
+      renderEsrList();
+      populateEsrSelects();
+      debounceSave();
+    }
+
+    state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
+    updateResumeEsrUI();
+    debounceSave();
+    logScan('QR ajouté : ' + nigend);
+
+    // TA PAUSE 2s EXISTANTE (on la laisse telle quelle)
+    if (html5QrCode && isScanning) {
+      isScanning = false;
+      html5QrCode.stop().then(() => {
+        setTimeout(() => {
+          if (document.getElementById('qrModal').style.display !== 'none') {
+            html5QrCode.start(
+              { facingMode: "environment" },
+              { fps: 10, qrbox: 250 },
+              onScanSuccess
+            ).then(()=>{ isScanning=true; }).catch(()=>{});
+          }
+        }, 2000);
+      }).catch(()=>{});
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
 
     function parseQrPayload(raw){
       const lines = String(raw).split(/\n+/).map(l=>l.trim()).filter(Boolean);
@@ -1317,6 +1457,9 @@ Pl: ${counts.pl.v} / ${counts.pl.cv} CV / ${counts.pl.cf} CF`;
       document.getElementById('delEsiBtn').addEventListener('click', delEsi);
       document.getElementById('addPasseurBtn').addEventListener('click', addPasseur);
       document.getElementById('delPasseurBtn').addEventListener('click', delPasseur);
+// dans init(), après les autres addEventListener :
+const pasteBtn = document.getElementById('pasteEsiBtn');
+if (pasteBtn) pasteBtn.addEventListener('click', pasteFromClipboardEsiPasseur);
 
       document.querySelectorAll('button.plusminus').forEach(btn => {
         btn.addEventListener('click', (e) => {
