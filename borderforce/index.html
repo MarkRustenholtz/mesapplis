@@ -228,6 +228,8 @@ nav button.active {
   <button onclick="window.open('https://markrustenholtz.github.io/esi/', '_blank')">
     ESI + Visa
   </button>
+  <button id="pasteEsiPasseurBtn">Coller ESI/PASSEUR</button>
+
 </nav>
 
 <!-- JS pour navigation -->
@@ -1143,74 +1145,22 @@ function addPasseur() {
     }
 
     function onScanSuccess(decodedText) {
-  try {
-    // === 1) Cas JSON venant de ESI+Visa ===
-    try {
-      const parsedJson = JSON.parse(decodedText);
-      if (parsedJson && parsedJson.type_fiche) {
-        const obj = {
-          age: parsedJson.statut,
-          sexe: parsedJson.genre,
-          ageNum: parsedJson.age,
-          nationalite: parsedJson.nationalite,
-          lieu: parsedJson.lieu,
-          heure: parsedJson.heure,
-          suites: parsedJson.suites_donnees
-        };
+	try {
+  const fiche = JSON.parse(decodedText);
 
-        if (parsedJson.type_fiche === "ESI") {
-          state.esiList.push(obj);
-          renderEsiList();
-          debounceSave();
-          logScan("QR JSON ESI ajouté automatiquement");
-        } else if (parsedJson.type_fiche === "PASSEUR") {
-          state.passeurList.push(obj);
-          renderPasseurList();
-          debounceSave();
-          logScan("QR JSON PASSEUR ajouté automatiquement");
-        }
-        return; // on arrête ici, pas besoin d'aller au parsing texte
-      }
-    } catch(e) {
-      // pas un JSON valide, on continue avec le parsing texte
+  if (fiche.type_fiche) {
+    if (fiche.type_fiche === "ESI") {
+      state.esiList.push(fiche);
+      renderEsiList();
+    } else if (fiche.type_fiche === "PASSEUR") {
+      state.passeurList.push(fiche);
+      renderPasseurList();
     }
 
-    // === 2) Cas ESR ou comptage (format texte existant) ===
-    const parsed = parseQrPayload(decodedText);
-    if (!parsed) return;
-    const { nigend, counts, pretty } = parsed;
-
-    if (state.scannedNigends.includes(nigend)) {
-      logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
-      return;
-    }
-    state.scannedNigends.push(nigend);
-
-    ['train','bus','vl','pl'].forEach(k=>{
-      state.scansAgg[k].v  += counts[k].v;
-      state.scansAgg[k].cv += counts[k].cv;
-      state.scansAgg[k].cf += counts[k].cf;
-    });
-
-    const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
-    if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
-      state.esrList.push({
-        grade: parsed.grade,
-        nom: parsed.nom,
-        nigend: parsed.nigend,
-        crt: parsed.crt
-      });
-      renderEsrList();
-      populateEsrSelects();
-      debounceSave();
-    }
-
-    state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
-    updateResumeEsrUI();
     debounceSave();
-    logScan('QR ESR ajouté : ' + nigend);
-
-    // pause 2s puis reprise auto du scan
+    logScan("QR ESI/PASSEUR ajouté !");
+    
+    // PAUSE 2s pour éviter le multi-scan
     if (html5QrCode && isScanning) {
       isScanning = false;
       html5QrCode.stop().then(() => {
@@ -1226,11 +1176,62 @@ function addPasseur() {
       }).catch(()=>{});
     }
 
-  } catch(e) {
-    console.error("Erreur onScanSuccess :", e);
+    return; // on arrête ici pour ne pas exécuter le code nigend
   }
+} catch(e) {
+  // pas un JSON ESI/PASSEUR, on continue le traitement nigend normal
 }
 
+      try {
+        const parsed = parseQrPayload(decodedText);
+        if (!parsed) return;
+        const { nigend, counts, pretty } = parsed;
+        if (state.scannedNigends.includes(nigend)) {
+          logScan('NIGEND ' + nigend + ' déjà scanné, ignoré.');
+          return;
+        }
+        state.scannedNigends.push(nigend);
+        ['train','bus','vl','pl'].forEach(k=>{
+          state.scansAgg[k].v  += counts[k].v;
+          state.scansAgg[k].cv += counts[k].cv;
+          state.scansAgg[k].cf += counts[k].cf;
+        });
+        const dejaEsr = (state.esrList || []).some(e => e.nigend === parsed.nigend);
+        if (!dejaEsr && parsed.grade && parsed.nom && parsed.nigend && parsed.crt) {
+          state.esrList.push({
+            grade: parsed.grade,
+            nom: parsed.nom,
+            nigend: parsed.nigend,
+            crt: parsed.crt
+          });
+          renderEsrList();
+          populateEsrSelects();
+          debounceSave();
+        }
+        state.resumeEsr += `NIGEND ${nigend}\n${pretty}\n\n`;
+        updateResumeEsrUI();
+        debounceSave();
+        logScan('QR ajouté : ' + nigend);
+
+        // pause 2s then resume
+        if (html5QrCode && isScanning) {
+          isScanning = false;
+          html5QrCode.stop().then(() => {
+            setTimeout(() => {
+              if (document.getElementById('qrModal').style.display !== 'none') {
+                html5QrCode.start(
+                  { facingMode: "environment" },
+                  { fps: 10, qrbox: 250 },
+                  onScanSuccess
+                ).then(()=>{ isScanning=true; }).catch(()=>{});
+              }
+            }, 2000);
+          }).catch(()=>{});
+        }
+      } catch(e) {
+        console.error(e);
+      }
+    }
 
     function parseQrPayload(raw){
       const lines = String(raw).split(/\n+/).map(l=>l.trim()).filter(Boolean);
@@ -1290,6 +1291,36 @@ Pl: ${counts.pl.v} / ${counts.pl.cv} CV / ${counts.pl.cf} CF`;
       document.getElementById('scanQrBtn').addEventListener('click', openQrModal);
     });
 
+    async function pasteEsiPasseur() {
+  try {
+    const text = await navigator.clipboard.readText();
+    const fiche = JSON.parse(text);
+
+    if (!fiche.type_fiche) {
+      alert("Le JSON collé n'est pas valide !");
+      return;
+    }
+
+    if (fiche.type_fiche === "ESI") {
+      state.esiList.push(fiche);
+      renderEsiList();
+    } else if (fiche.type_fiche === "PASSEUR") {
+      state.passeurList.push(fiche);
+      renderPasseurList();
+    } else {
+      alert("Type de fiche inconnu !");
+      return;
+    }
+
+    debounceSave();
+    alert("Fiche ajoutée depuis le presse-papiers !");
+  } catch (err) {
+    console.error(err);
+    alert("Impossible de coller les données !");
+  }
+}
+
+
     function init() {
       loadFromStorage();
       updateUI();
@@ -1301,6 +1332,7 @@ Pl: ${counts.pl.v} / ${counts.pl.cv} CV / ${counts.pl.cf} CF`;
       document.getElementById('delEsiBtn').addEventListener('click', delEsi);
       document.getElementById('addPasseurBtn').addEventListener('click', addPasseur);
       document.getElementById('delPasseurBtn').addEventListener('click', delPasseur);
+      document.getElementById('pasteEsiPasseurBtn').addEventListener('click', pasteEsiPasseur);
 
       document.querySelectorAll('button.plusminus').forEach(btn => {
         btn.addEventListener('click', (e) => {
