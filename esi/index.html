@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
@@ -8,10 +9,11 @@
 <meta name="theme-color" content="#0d6efd">
 <link rel="apple-touch-icon" href="icon-192.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
 <style>
-    body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; }
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f0f0f0; color:#111;}
     h1 { text-align: center; }
     nav { text-align: center; margin-bottom: 20px; }
     nav button {
@@ -29,7 +31,7 @@
 
     /* Styles Fiche ESI */
     h2 { background-color: #004080; color: white; padding: 10px; border-radius: 5px; }
-    form { background: white; padding: 20px; border-radius: 5px; max-width: 600px; margin: auto; }
+    form { background: white; padding: 20px; border-radius: 5px; max-width: 860px; margin: auto; }
     label { display: block; margin-top: 10px; }
     input, select { width: 100%; padding: 8px; margin-top: 5px; }
     button { margin-top: 10px; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
@@ -38,6 +40,7 @@
     form button { background-color: #004080; color: white; }
     form button:hover { background-color: #0066cc; }
     .fiche { background: white; padding: 10px; border-radius: 5px; margin-top: 10px; }
+    .fiche .btn-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6px; }
     .date-naissance { display: flex; gap: 5px; }
     .date-naissance input { flex: 1; }
     .heure-date { display: flex; gap: 5px; }
@@ -54,7 +57,7 @@
     }
 
     /* Styles Assistant Visa */
-    #visaApp { background: white; padding: 20px; border-radius: 5px; max-width: 600px; margin: auto; }
+    #visaApp { background: white; padding: 20px; border-radius: 5px; max-width: 860px; margin: auto; }
     #visaApp h2 { background: none; color: #0055A4; }
     #visaApp select, #visaApp button { margin: 5px 0; padding: 5px; font-size: 1rem; }
     #resultat { margin-top: 15px; font-weight: bold; }
@@ -82,7 +85,7 @@
         border: 1px solid #ccc;
         border-top: none;
         border-radius: 0 0 4px 4px;
-        max-height: 200px;
+        max-height: 220px;
         overflow-y: auto;
         z-index: 1000;
         display: none;
@@ -96,9 +99,12 @@
         background-color: #0055A4;
         color: white;
     }
-    .pays-option:last-child {
-        border-bottom: none;
-    }
+    .pays-option:last-child { border-bottom: none; }
+
+    /* Grid for all QRs */
+    #qrBF { display:grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap:10px; }
+    .qr-card { background:#fff;border-radius:8px;padding:10px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,.1) }
+    .qr-caption { margin-top:6px;font-size:.9rem }
 </style>
 </head>
 <body>
@@ -109,78 +115,77 @@
   <button onclick="showSection('esi')" id="btnEsi" class="active">Fiche Identité</button>
   <button onclick="showSection('visa')" id="btnVisa">Assistant Visa France</button>
   <button onclick="window.open('https://markrustenholtz.github.io/borderforce/', '_blank')">
-  App principal
-</button>
+    App principal
+  </button>
 </nav>
 
 <!-- Section Fiche ESI -->
 <section id="esi" class="active">
   <form id="ficheForm">
-<label>Catégorie :
-  <select id="categorie">
-    <option value="ESI">ESI</option>
-    <option value="PASSEUR">PASSEUR</option>
-  </select>
-</label>
-      <h2>Identité</h2>
-      <label>Nom<input type="text" id="nom" autocomplete="off" required></label>
-      <label>Prénom<input type="text" id="prenom" autocomplete="off" required></label>
-      <label>Sexe
-          <select id="sexe">
-              <option value="">--Sélectionner--</option>
-              <option value="Homme">Masculin</option>
-              <option value="Femme">Féminin</option>
-          </select>
-      </label>
-      <label>Nationalité<input type="text" id="nationalite" autocomplete="off"></label>
-      
-      <label>Date de naissance :</label>
-      <div class="date-naissance">
-          <input type="number" id="jour" placeholder="JJ" min="1" max="31" required>
-          <input type="number" id="mois" placeholder="MM" min="1" max="12" required>
-          <input type="number" id="annee" placeholder="AAAA" min="1900" max="2100" required>
-      </div>
-      <label>Âge<input type="number" id="age" readonly></label>
+    <label>Catégorie :
+      <select id="categorie">
+        <option value="ESI">ESI</option>
+        <option value="PASSEUR">PASSEUR</option>
+      </select>
+    </label>
 
-     <h2>Intervention</h2>
-      <label>Heure et Date d'intervention :</label>
-      <div class="heure-date">
-          <input type="time" id="heure" required>
-          <input type="date" id="dateIntervention" required>
-      </div>
-      <label>Lieu d'interpellation<input type="text" id="lieuInterpellation" autocomplete="off"></label>
-<label>Suites données<input type="text" id="suitesDonnees" autocomplete="off"></label>
+    <h2>Identité</h2>
+    <label>Nom<input type="text" id="nom" autocomplete="off" required></label>
+    <label>Prénom<input type="text" id="prenom" autocomplete="off" required></label>
+    <label>Sexe
+      <select id="sexe">
+        <option value="">--Sélectionner--</option>
+        <option value="Homme">Masculin</option>
+        <option value="Femme">Féminin</option>
+      </select>
+    </label>
+    <label>Nationalité<input type="text" id="nationalite" autocomplete="off"></label>
 
-      <h2>Voyage</h2>
-      <label>Ville de départ<input type="text" id="villeDepart" autocomplete="off"></label>
-      <label>Pays de départ<input type="text" id="paysDepart" autocomplete="off"></label>
-      <label>Ville de destination<input type="text" id="villeDestination" autocomplete="off"></label>
-      <label>Pays de destination<input type="text" id="paysDestination" autocomplete="off"></label>
+    <label>Date de naissance :</label>
+    <div class="date-naissance">
+      <input type="number" id="jour" placeholder="JJ" min="1" max="31" required>
+      <input type="number" id="mois" placeholder="MM" min="1" max="12" required>
+      <input type="number" id="annee" placeholder="AAAA" min="1900" max="2100" required>
+    </div>
+    <label>Âge<input type="number" id="age" readonly></label>
 
-      <h2>Véhicule</h2>
-      <label>Type de véhicule<input type="text" id="vehicule" autocomplete="off"></label>
-      <label>Immatriculation<input type="text" id="immatriculation" autocomplete="off"></label>
+    <h2>Intervention</h2>
+    <label>Heure et Date d'intervention :</label>
+    <div class="heure-date">
+      <input type="time" id="heure" required>
+      <input type="date" id="dateIntervention" required>
+    </div>
+    <label>Lieu d'interpellation<input type="text" id="lieuInterpellation" autocomplete="off"></label>
+    <label>Suites données<input type="text" id="suitesDonnees" autocomplete="off"></label>
 
-      <h2>Pièces d'identité présentées</h2>
-      <div id="piecesIdentite">
-          <label><input type="checkbox" name="piece" value="Passeport valide"> Passeport valide</label>
-          <label><input type="checkbox" name="piece" value="Passeport périmé"> Passeport périmé</label>
-          <label><input type="checkbox" name="piece" value="Fiche de demande d'asile valide"> Fiche de demande d'asile valide</label>
-          <label><input type="checkbox" name="piece" value="Fiche de demande d'asile périmée"> Fiche de demande d'asile périmée</label>
-          <label><input type="checkbox" name="piece" value="Carte d'identité valide"> Carte d'identité valide</label>
-          <label><input type="checkbox" name="piece" value="Carte d'identité périmée"> Carte d'identité périmée</label>
-          <label><input type="checkbox" name="piece" value="Titre de séjour valide"> Titre de séjour valide</label>
-          <label><input type="checkbox" name="piece" value="Titre de séjour périmé"> Titre de séjour périmé</label>
-          <label><input type="checkbox" id="autreCheck" name="piece" value=""> Autre :</label>
-      </div>
-      <input type="text" id="autreTexte" placeholder="Précisez..." style="width: 100%; margin-top: 5px; padding: 8px;" disabled>
+    <h2>Voyage</h2>
+    <label>Ville de départ<input type="text" id="villeDepart" autocomplete="off"></label>
+    <label>Pays de départ<input type="text" id="paysDepart" autocomplete="off"></label>
+    <label>Ville de destination<input type="text" id="villeDestination" autocomplete="off"></label>
+    <label>Pays de destination<input type="text" id="paysDestination" autocomplete="off"></label>
 
-      <button type="submit">Enregistrer la fiche</button>
-	  <button type="button" id="btnQRBF">Générer tous les QR code dans Border Force</button>
-<button type="button" id="btnCopierBF">Copier les fiches dans Border Force</button>
-<div id="qrBF" style="margin-top:10px;"></div>
+    <h2>Véhicule</h2>
+    <label>Type de véhicule<input type="text" id="vehicule" autocomplete="off"></label>
+    <label>Immatriculation<input type="text" id="immatriculation" autocomplete="off"></label>
 
+    <h2>Pièces d'identité présentées</h2>
+    <div id="piecesIdentite">
+      <label><input type="checkbox" name="piece" value="Passeport valide"> Passeport valide</label>
+      <label><input type="checkbox" name="piece" value="Passeport périmé"> Passeport périmé</label>
+      <label><input type="checkbox" name="piece" value="Fiche de demande d'asile valide"> Fiche de demande d'asile valide</label>
+      <label><input type="checkbox" name="piece" value="Fiche de demande d'asile périmée"> Fiche de demande d'asile périmée</label>
+      <label><input type="checkbox" name="piece" value="Carte d'identité valide"> Carte d'identité valide</label>
+      <label><input type="checkbox" name="piece" value="Carte d'identité périmée"> Carte d'identité périmée</label>
+      <label><input type="checkbox" name="piece" value="Titre de séjour valide"> Titre de séjour valide</label>
+      <label><input type="checkbox" name="piece" value="Titre de séjour périmé"> Titre de séjour périmé</label>
+      <label><input type="checkbox" id="autreCheck" name="piece" value=""> Autre :</label>
+    </div>
+    <input type="text" id="autreTexte" placeholder="Précisez..." style="width: 100%; margin-top: 5px; padding: 8px;" disabled>
 
+    <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer la fiche</button>
+    <button type="button" id="btnQRBF"><i class="fa-solid fa-qrcode"></i> Générer les QR de toutes les fiches</button>
+    <button type="button" id="btnCopierBF"><i class="fa-regular fa-copy"></i> Copier toutes les fiches (JSON)</button>
+    <div id="qrBF" style="margin-top:10px;"></div>
   </form>
 
   <h2>Historique des fiches</h2>
@@ -217,166 +222,166 @@ function showSection(id) {
   document.getElementById("btn" + id.charAt(0).toUpperCase() + id.slice(1)).classList.add("active");
 }
 
-// --------- SCRIPT FICHE ESI ----------
+// --------- UTIL ---------
 function setCurrentDateTime() {
-    const now = new Date();
-    const timeString = now.toTimeString().slice(0, 5);
-    const dateString = now.toISOString().split('T')[0];
-    
-    document.getElementById('heure').value = timeString;
-    document.getElementById('dateIntervention').value = dateString;
+  const now = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  const timeString = pad(now.getHours()) + ':' + pad(now.getMinutes());
+  const dateString = now.toISOString().split('T')[0];
+  document.getElementById('heure').value = timeString;
+  document.getElementById('dateIntervention').value = dateString;
 }
 
-// Initialiser avec la date/heure actuelle
-setCurrentDateTime();
-
+// Age auto
 function calculerAge() {
-    const jour = parseInt(document.getElementById("jour").value);
-    const mois = parseInt(document.getElementById("mois").value) - 1;
-    const annee = parseInt(document.getElementById("annee").value);
-    if (!jour || mois < 0 || !annee) return;
-    const today = new Date();
-    const naissance = new Date(annee, mois, jour);
-    let age = today.getFullYear() - naissance.getFullYear();
-    const m = today.getMonth() - naissance.getMonth();
-    if (m < 0 || (m === 0 && today.getDate() < naissance.getDate())) age--;
-    document.getElementById("age").value = age;
+  const j = parseInt(document.getElementById("jour").value, 10);
+  const m = parseInt(document.getElementById("mois").value, 10) - 1;
+  const a = parseInt(document.getElementById("annee").value, 10);
+  if (!j || m < 0 || !a) return;
+  const today = new Date();
+  const naissance = new Date(a, m, j);
+  let age = today.getFullYear() - naissance.getFullYear();
+  const mm = today.getMonth() - naissance.getMonth();
+  if (mm < 0 || (mm === 0 && today.getDate() < naissance.getDate())) age--;
+  document.getElementById("age").value = age;
 }
 
 function autoNext(input, nextInputId, maxLength) {
-    input.addEventListener('input', function() {
-        if (this.value.length >= maxLength) {
-            document.getElementById(nextInputId).focus();
-        }
-        calculerAge();
-    });
+  input.addEventListener('input', function() {
+    if (this.value.length >= maxLength) {
+      const next = document.getElementById(nextInputId);
+      if (next) next.focus();
+    }
+    calculerAge();
+  });
 }
 
-autoNext(document.getElementById('jour'), 'mois', 2);
-autoNext(document.getElementById('mois'), 'annee', 2);
-document.getElementById('annee').addEventListener('input', calculerAge);
-
-document.getElementById('immatriculation').addEventListener('input', function() {
-    this.value = this.value.toUpperCase();
-});
-
-// Gestion du champ "Autre" pour les pièces d'identité
-document.getElementById('autreCheck').addEventListener('change', function() {
-    const autreTexte = document.getElementById('autreTexte');
-    if (this.checked) {
-        autreTexte.disabled = false;
-        autreTexte.focus();
-    } else {
-        autreTexte.disabled = true;
-        autreTexte.value = '';
-        this.value = '';
-    }
-});
-
-document.getElementById('autreTexte').addEventListener('input', function() {
-    const autreCheck = document.getElementById('autreCheck');
-    if (this.value.trim()) {
-        autreCheck.value = 'Autre : ' + this.value.trim();
-    } else {
-        autreCheck.value = '';
-    }
-});
-
+// Format helpers
 function formatDateNaissance(jour, mois, annee) {
-    return `${jour.toString().padStart(2, '0')}/${mois.toString().padStart(2, '0')}/${annee}`;
+  return `${jour.toString().padStart(2, '0')}/${mois.toString().padStart(2, '0')}/${annee}`;
 }
-
 function formatDateIntervention(dateStr) {
-    if (!dateStr) return '';
-    const [annee, mois, jour] = dateStr.split("-");
-    return `${jour}/${mois}/${annee}`;
+  if (!dateStr) return '';
+  const [annee, mois, jour] = dateStr.split("-");
+  return `${jour}/${mois}/${annee}`;
 }
 
-document.getElementById('ficheForm').addEventListener('submit', function(e){
-    e.preventDefault();
-    const pieces = Array.from(document.querySelectorAll('input[name="piece"]:checked')).map(cb => cb.value);
-    
-    const jourVal = document.getElementById('jour').value;
-    const moisVal = document.getElementById('mois').value;
-    const anneeVal = document.getElementById('annee').value;
-    
-    const fiche = {
-        categorie: document.getElementById('categorie').value,
-        nom: document.getElementById('nom').value,
-        prenom: document.getElementById('prenom').value,
-        sexe: document.getElementById('sexe').value,
-        nationalite: document.getElementById('nationalite').value,
-        jour: jourVal,
-        mois: moisVal,
-        annee: anneeVal,
-        dateNaissance: formatDateNaissance(jourVal, moisVal, anneeVal),
-        age: document.getElementById('age').value,
-        heure: document.getElementById('heure').value,
-        dateIntervention: document.getElementById('dateIntervention').value,
-        lieuInterpellation: document.getElementById('lieuInterpellation').value,
-suitesDonnees: document.getElementById('suitesDonnees').value,
- villeDepart: document.getElementById('villeDepart').value,
-        paysDepart: document.getElementById('paysDepart').value,
-        villeDestination: document.getElementById('villeDestination').value,
-        paysDestination: document.getElementById('paysDestination').value,
-        vehicule: document.getElementById('vehicule').value,
-        immatriculation: document.getElementById('immatriculation').value,
-        piecesIdentite: pieces
-    };
-    
-    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-    fiches.push(fiche);
-    localStorage.setItem('fichesESI', JSON.stringify(fiches));
-    this.reset();
-    setCurrentDateTime();
-    afficherHistorique();
-});
+// --------- FORM LOGIQUE ----------
+function getFichePourBF(fiche) {
+  const sexe = fiche.sexe;
+  const ageNum = parseInt(fiche.age, 10);
+  const ageValide = Number.isFinite(ageNum) ? ageNum : null;
+
+  let statut;
+  if (sexe === "Homme") {
+    statut = (ageValide !== null && ageValide >= 18) ? "Majeur" : "Mineur";
+  } else if (sexe === "Femme") {
+    statut = (ageValide !== null && ageValide >= 18) ? "Majeure" : "Mineure";
+  } else {
+    statut = "";
+  }
+
+  return {
+    heure: fiche.heure || "",
+    statut: statut,
+    genre: sexe || "",
+    age: ageValide ?? "",
+    nationalite: fiche.nationalite || "",
+    lieu: fiche.lieuInterpellation || "",
+    suites_donnees: fiche.suitesDonnees || "",
+    type_fiche: fiche.categorie || "ESI"
+  };
+}
 
 function afficherHistorique() {
-    const historiqueDiv = document.getElementById('historique');
-    historiqueDiv.innerHTML = '';
-    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-    fiches.forEach((fiche, index) => {
-        const ficheDiv = document.createElement('div');
-        ficheDiv.className = 'fiche';
-       ficheDiv.innerHTML = `
-    <strong>Fiche #${index+1} ${fiche.categorie}</strong><br>
-    Nom: ${fiche.nom} ${fiche.prenom} | Sexe: ${fiche.sexe} | Nationalité: ${fiche.nationalite}<br>
-    Date de naissance: ${fiche.dateNaissance || 'Non renseignée'} | Âge: ${fiche.age} ans<br>
-    Intervention: ${fiche.heure || fiche.heureDate} le ${formatDateIntervention(fiche.dateIntervention)} 
-    Lieu: ${fiche.lieuInterpellation} | Suites données: ${fiche.suitesDonnees || ''}<br>
-    Départ: ${fiche.villeDepart}, ${fiche.paysDepart} | Destination: ${fiche.villeDestination}, ${fiche.paysDestination}<br>
-    Véhicule: ${fiche.vehicule} | Immatriculation: ${fiche.immatriculation}<br>
-    Pièces d'identité: ${fiche.piecesIdentite.join(", ")}<br>
-    <button onclick="modifierFiche(${index})">Modifier</button>
-    <button onclick="supprimerFiche(${index})" class="btn-danger">Supprimer</button>
-    <button onclick='generateQrForFiche(${JSON.stringify(fiche).replace(/"/g,'&quot;')})'>QR</button>
-    <button onclick='copierFichePourBF(${JSON.stringify(fiche).replace(/"/g,'&quot;')})'>Copier</button>
-`;
-   
+  const historiqueDiv = document.getElementById('historique');
+  historiqueDiv.innerHTML = '';
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
 
-        historiqueDiv.appendChild(ficheDiv);
-    });
+  if (!fiches.length) {
+    historiqueDiv.innerHTML = '<div class="fiche">Aucune fiche enregistrée.</div>';
+    return;
+  }
+
+  fiches.forEach((fiche, index) => {
+    const ficheDiv = document.createElement('div');
+    ficheDiv.className = 'fiche';
+    ficheDiv.innerHTML = `
+      <strong>Fiche #${index+1} ${fiche.categorie}</strong><br>
+      Nom: ${fiche.nom} ${fiche.prenom} | Sexe: ${fiche.sexe} | Nationalité: ${fiche.nationalite}<br>
+      Date de naissance: ${fiche.dateNaissance || 'Non renseignée'} | Âge: ${fiche.age} ans<br>
+      Intervention: ${fiche.heure} le ${formatDateIntervention(fiche.dateIntervention)}<br>
+      Lieu: ${fiche.lieuInterpellation} | Suites données: ${fiche.suitesDonnees || ''}<br>
+      Départ: ${fiche.villeDepart || ''}, ${fiche.paysDepart || ''} | Destination: ${fiche.villeDestination || ''}, ${fiche.paysDestination || ''}<br>
+      Véhicule: ${fiche.vehicule || ''} | Immatriculation: ${fiche.immatriculation || ''}<br>
+      Pièces d'identité: ${(fiche.piecesIdentite||[]).join(", ")}<br>
+      <div class="btn-row">
+        <button onclick="modifierFiche(${index})"><i class="fa-regular fa-pen-to-square"></i> Modifier</button>
+        <button onclick="supprimerFiche(${index})" class="btn-danger"><i class="fa-regular fa-trash-can"></i> Supprimer</button>
+        <button onclick='generateQrForFiche(${JSON.stringify(fiche).replace(/"/g,"&quot;")})'><i class="fa-solid fa-qrcode"></i> QR</button>
+        <button onclick='copierFichePourBF(${JSON.stringify(fiche).replace(/"/g,"&quot;")})'><i class="fa-regular fa-copy"></i> Copier JSON</button>
+      </div>
+    `;
+    historiqueDiv.appendChild(ficheDiv);
+  });
 }
-function getFichePourBF(fiche) {
-    const sexe = fiche.sexe;
-    const age = parseInt(fiche.age, 10);
-    return {
-        heure: fiche.heure,
-        statut: sexe === "Homme" ? (age >= 18 ? "Majeur" : "Mineur") 
-                                  : (age >= 18 ? "Majeure" : "Mineure"),
-        genre: sexe,
-        age: age,
-        nationalite: fiche.nationalite,
-        lieu: fiche.lieuInterpellation,
-        suites_donnees: fiche.suitesDonnees,
-        type_fiche: fiche.categorie // ESI ou PASSEUR
-    };
+
+function supprimerFiche(index) {
+  if (!confirm("Voulez-vous vraiment supprimer cette fiche ?")) return;
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+  fiches.splice(index, 1);
+  localStorage.setItem('fichesESI', JSON.stringify(fiches));
+  afficherHistorique();
 }
+
+function modifierFiche(index) {
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+  const fiche = fiches[index];
+  document.getElementById('categorie').value = fiche.categorie;
+  document.getElementById('nom').value = fiche.nom;
+  document.getElementById('prenom').value = fiche.prenom;
+  document.getElementById('sexe').value = fiche.sexe;
+  document.getElementById('nationalite').value = fiche.nationalite;
+  document.getElementById('jour').value = fiche.jour;
+  document.getElementById('mois').value = fiche.mois;
+  document.getElementById('annee').value = fiche.annee;
+  document.getElementById('age').value = fiche.age;
+  document.getElementById('villeDepart').value = fiche.villeDepart || '';
+  document.getElementById('paysDepart').value = fiche.paysDepart || '';
+  document.getElementById('villeDestination').value = fiche.villeDestination || '';
+  document.getElementById('paysDestination').value = fiche.paysDestination || '';
+  document.getElementById('heure').value = fiche.heure || '';
+  document.getElementById('dateIntervention').value = fiche.dateIntervention || '';
+  document.getElementById('lieuInterpellation').value = fiche.lieuInterpellation || '';
+  document.getElementById('suitesDonnees').value = fiche.suitesDonnees || '';
+  document.getElementById('vehicule').value = fiche.vehicule || '';
+  document.getElementById('immatriculation').value = fiche.immatriculation || '';
+
+  // Réinitialiser / re-cocher
+  document.querySelectorAll('input[name="piece"]').forEach(cb => cb.checked = false);
+  document.getElementById('autreTexte').value = '';
+  document.getElementById('autreTexte').disabled = true;
+  (fiche.piecesIdentite || []).forEach(val => {
+    if (val.startsWith('Autre : ')) {
+      document.getElementById('autreCheck').checked = true;
+      document.getElementById('autreTexte').disabled = false;
+      document.getElementById('autreTexte').value = val.replace('Autre : ', '');
+      document.getElementById('autreCheck').value = val;
+    } else {
+      const cb = Array.from(document.querySelectorAll('input[name="piece"]')).find(c => c.value === val);
+      if (cb) cb.checked = true;
+    }
+  });
+
+  // retirer la fiche courante pour forcer la ré-sauvegarde à l'enregistrement
+  fiches.splice(index, 1);
+  localStorage.setItem('fichesESI', JSON.stringify(fiches));
+  afficherHistorique();
+}
+
+// QR individuel (modale)
 function generateQrForFiche(fiche) {
   const ficheBF = getFichePourBF(fiche);
-
-  // petite modale
   const modal = document.createElement('div');
   modal.style = "position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;";
   modal.innerHTML = `
@@ -387,7 +392,6 @@ function generateQrForFiche(fiche) {
     </div>
   `;
   document.body.appendChild(modal);
-
   const holder = modal.querySelector('#qrHolder');
   holder.innerHTML = '';
   new QRCode(holder, {
@@ -398,122 +402,134 @@ function generateQrForFiche(fiche) {
   });
 }
 
+// Copie JSON individuel
 function copierFichePourBF(fiche) {
-    const ficheBF = getFichePourBF(fiche);
-    const data = JSON.stringify(ficheBF);
-    navigator.clipboard.writeText(data)
-        .then(() => alert("Données Border Force copiées !"))
-        .catch(err => console.error("Erreur copie : ", err));
+  const ficheBF = getFichePourBF(fiche);
+  const data = JSON.stringify(ficheBF);
+  navigator.clipboard.writeText(data)
+    .then(() => alert("Données Border Force copiées !"))
+    .catch(err => console.error("Erreur copie : ", err));
 }
 
-    // Créer une petite popup avec le QR
-    const modal = document.createElement('div');
-    modal.style = "position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:1000;";
-    modal.innerHTML = `
-      <div style="background:white;padding:20px;border-radius:10px;max-width:90%;text-align:center;">
-        <h3>QR Code Fiche</h3>
-        <div id="qrHolder"></div>
-        <button onclick="document.body.removeChild(this.parentNode.parentNode)" style="margin-top:10px;padding:6px 12px;">Fermer</button>
-      </div>`;
-    modal.querySelector('#qrHolder').appendChild(qrCanvas);
-    document.body.appendChild(modal);
-}
+// --------- ENREGISTREMENT FORM ----------
+document.getElementById('ficheForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  const pieces = Array.from(document.querySelectorAll('input[name=\"piece\"]:checked')).map(cb => cb.value);
 
-// Générer QR code Border Force (avec qrcodejs)
+  const jourVal = document.getElementById('jour').value;
+  const moisVal = document.getElementById('mois').value;
+  const anneeVal = document.getElementById('annee').value;
+
+  const fiche = {
+    categorie: document.getElementById('categorie').value,
+    nom: document.getElementById('nom').value,
+    prenom: document.getElementById('prenom').value,
+    sexe: document.getElementById('sexe').value,
+    nationalite: document.getElementById('nationalite').value,
+    jour: jourVal,
+    mois: moisVal,
+    annee: anneeVal,
+    dateNaissance: formatDateNaissance(jourVal, moisVal, anneeVal),
+    age: document.getElementById('age').value,
+    heure: document.getElementById('heure').value,
+    dateIntervention: document.getElementById('dateIntervention').value,
+    lieuInterpellation: document.getElementById('lieuInterpellation').value,
+    suitesDonnees: document.getElementById('suitesDonnees').value,
+    villeDepart: document.getElementById('villeDepart').value,
+    paysDepart: document.getElementById('paysDepart').value,
+    villeDestination: document.getElementById('villeDestination').value,
+    paysDestination: document.getElementById('paysDestination').value,
+    vehicule: document.getElementById('vehicule').value,
+    immatriculation: document.getElementById('immatriculation').value,
+    piecesIdentite: pieces
+  };
+
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+  fiches.push(fiche);
+  localStorage.setItem('fichesESI', JSON.stringify(fiches));
+  this.reset();
+  setCurrentDateTime();
+  document.getElementById('age').value = '';
+  afficherHistorique();
+});
+
+// Effacer toutes les fiches
+document.getElementById('effacerFiches').addEventListener('click', function() {
+  if (confirm("Voulez-vous vraiment effacer toutes les fiches ?")) {
+    localStorage.removeItem('fichesESI');
+    afficherHistorique();
+    alert("Toutes les fiches ont été effacées !");
+  }
+});
+
+// Champs auto & âge
+autoNext(document.getElementById('jour'), 'mois', 2);
+autoNext(document.getElementById('mois'), 'annee', 2);
+document.getElementById('annee').addEventListener('input', calculerAge);
+
+// Licence plaque uppercase
+document.getElementById('immatriculation').addEventListener('input', function() {
+  this.value = this.value.toUpperCase();
+});
+
+// Gestion du champ "Autre"
+document.getElementById('autreCheck').addEventListener('change', function() {
+  const autreTexte = document.getElementById('autreTexte');
+  if (this.checked) {
+    autreTexte.disabled = false;
+    autreTexte.focus();
+  } else {
+    autreTexte.disabled = true;
+    autreTexte.value = '';
+    this.value = '';
+  }
+});
+document.getElementById('autreTexte').addEventListener('input', function() {
+  const autreCheck = document.getElementById('autreCheck');
+  if (this.value.trim()) autreCheck.value = 'Autre : ' + this.value.trim();
+  else autreCheck.value = '';
+});
+
+// --------- QR/JSON TOUTES FICHES ----------
 document.getElementById('btnQRBF').addEventListener('click', () => {
   const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-  if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
-  const lastFiche = fiches[fiches.length - 1];
-  const ficheBF = getFichePourBF(lastFiche);
-
+  if (!fiches.length) return alert("Aucune fiche enregistrée !");
   const container = document.getElementById('qrBF');
-  container.innerHTML = ''; // reset
-  new QRCode(container, {
-    text: JSON.stringify(ficheBF),
-    width: 200,
-    height: 200,
-    correctLevel: QRCode.CorrectLevel.M
+  container.innerHTML = '';
+  fiches.forEach((fiche, i) => {
+    const card = document.createElement('div');
+    card.className = 'qr-card';
+    const holder = document.createElement('div');
+    const caption = document.createElement('div');
+    caption.className = 'qr-caption';
+    caption.textContent = `#${i+1} ${fiche.categorie} - ${fiche.sexe} ${fiche.age||'?'} - ${fiche.nationalite||''}`;
+    card.appendChild(holder);
+    card.appendChild(caption);
+    container.appendChild(card);
+    new QRCode(holder, {
+      text: JSON.stringify(getFichePourBF(fiche)),
+      width: 160,
+      height: 160,
+      correctLevel: QRCode.CorrectLevel.M
+    });
   });
 });
 
-// Copier les données Border Force
 document.getElementById('btnCopierBF').addEventListener('click', () => {
-    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-    if (fiches.length === 0) return alert("Aucune fiche enregistrée !");
-    const lastFiche = fiches[fiches.length - 1]; // dernière fiche
-    const ficheBF = getFichePourBF(lastFiche);
-    navigator.clipboard.writeText(JSON.stringify(ficheBF))
-        .then(() => alert("Données Border Force copiées !"))
-        .catch(err => console.error("Erreur copie : ", err));
-});
-function supprimerFiche(index) {
-    if (confirm("Voulez-vous vraiment supprimer cette fiche ?")) {
-        const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-        fiches.splice(index, 1);
-        localStorage.setItem('fichesESI', JSON.stringify(fiches));
-        afficherHistorique();
-    }
-}
-
-function modifierFiche(index) {
-    const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
-    const fiche = fiches[index];
-document.getElementById('categorie').value = fiche.categorie;
-    document.getElementById('nom').value = fiche.nom;
-    document.getElementById('prenom').value = fiche.prenom;
-    document.getElementById('sexe').value = fiche.sexe;
-    document.getElementById('nationalite').value = fiche.nationalite;
-    document.getElementById('jour').value = fiche.jour;
-    document.getElementById('mois').value = fiche.mois;
-    document.getElementById('annee').value = fiche.annee;
-    document.getElementById('age').value = fiche.age;
-    document.getElementById('villeDepart').value = fiche.villeDepart;
-    document.getElementById('paysDepart').value = fiche.paysDepart;
-    document.getElementById('villeDestination').value = fiche.villeDestination;
-    document.getElementById('paysDestination').value = fiche.paysDestination;
-    document.getElementById('heure').value = fiche.heure || '';
-    document.getElementById('dateIntervention').value = fiche.dateIntervention || '';
-    document.getElementById('lieuInterpellation').value = fiche.lieuInterpellation;
-document.getElementById('suitesDonnees').value = fiche.suitesDonnees || '';
-    document.getElementById('vehicule').value = fiche.vehicule;
-    document.getElementById('immatriculation').value = fiche.immatriculation;
-    
-    // Réinitialiser toutes les cases à cocher
-    document.querySelectorAll('input[name="piece"]').forEach(cb => cb.checked = false);
-    document.getElementById('autreTexte').value = '';
-    document.getElementById('autreTexte').disabled = true;
-    
-    // Cocher les pièces d'identité correspondantes
-    fiche.piecesIdentite.forEach(val => {
-        if (val.startsWith('Autre : ')) {
-            document.getElementById('autreCheck').checked = true;
-            document.getElementById('autreTexte').disabled = false;
-            document.getElementById('autreTexte').value = val.replace('Autre : ', '');
-            document.getElementById('autreCheck').value = val;
-        } else {
-            const cb = Array.from(document.querySelectorAll('input[name="piece"]')).find(c => c.value === val);
-            if (cb) cb.checked = true;
-        }
-    });
-    
-    fiches.splice(index, 1);
-    localStorage.setItem('fichesESI', JSON.stringify(fiches));
-    afficherHistorique();
-}
-
-document.getElementById('effacerFiches').addEventListener('click', function() {
-    if (confirm("Voulez-vous vraiment effacer toutes les fiches ?")) {
-        localStorage.removeItem('fichesESI');
-        afficherHistorique();
-        alert("Toutes les fiches ont été effacées !");
-    }
+  const fiches = JSON.parse(localStorage.getItem('fichesESI') || '[]');
+  if (!fiches.length) return alert("Aucune fiche enregistrée !");
+  const payload = fiches.map(getFichePourBF);
+  navigator.clipboard.writeText(JSON.stringify(payload))
+    .then(() => alert("Toutes les fiches ont été copiées (format JSON) !"))
+    .catch(err => console.error("Erreur copie : ", err));
 });
 
+// Init
+setCurrentDateTime();
 afficherHistorique();
 
 /* ---------- BLOC JS COMPLET POUR ESI+VISA (195 pays) ---------- */
 (function(){
-  // 1) Liste d'environ 195 pays
   const allCountries = [
     "Afghanistan","Albanie","Algérie","Allemagne","Andorre","Angola","Antigua-et-Barbuda","Argentine","Arménie","Australie",
     "Autriche","Azerbaïdjan","Bahamas","Bahreïn","Bangladesh","Barbade","Biélorussie","Belgique","Belize","Bénin",
@@ -537,7 +553,6 @@ afficherHistorique();
     "Vatican","Venezuela","Vietnam","Yémen","Zambie","Zimbabwe","Kosovo"
   ];
 
-  // 2) Pays sans visa court ni long
   const neverNeed = [
     "Autriche","Belgique","Bulgarie","Chypre","République tchèque","Croatie","Danemark","Estonie","Finlande","France",
     "Allemagne","Grèce","Hongrie","Irlande","Italie","Lettonie","Lituanie","Luxembourg","Malte","Pays-Bas",
@@ -545,7 +560,6 @@ afficherHistorique();
     "Islande","Liechtenstein","Norvège","Suisse","Monaco","Andorre","Saint-Marin","Vatican"
   ];
 
-  // 3) Pays exemptés de visa court séjour
   const shortExempt = [
     "Albanie","Bosnie-Herzégovine","Monténégro","Macédoine du Nord","Serbie","Moldavie","Ukraine","Géorgie",
     "Argentine","Bahamas","Barbade","Bolivie","Brésil","Canada","Chili","Colombie","Costa Rica",
@@ -556,7 +570,6 @@ afficherHistorique();
     "Maurice","Seychelles"
   ];
 
-  // 4) Construction de visaData
   const visaData = { court: {}, long: {} };
   allCountries.forEach(country => {
     if (neverNeed.includes(country)) {
@@ -571,47 +584,33 @@ afficherHistorique();
     }
   });
 
-  // 5) Pays avec exemption biométrique
   const biometricExemptions = ["Albanie","Bosnie-Herzégovine","Macédoine du Nord","Monténégro","Serbie","Moldavie","Ukraine","Géorgie"];
 
-  // 6) Système d'autocomplétion
   let selectedCountry = '';
   let currentSelection = -1;
   const paysInput = document.getElementById('paysInput');
   const paysDropdown = document.getElementById('paysDropdown');
-  
   const sortedCountries = allCountries.slice().sort((a,b) => a.localeCompare(b, 'fr', {ignorePunctuation: true}));
 
   function normalizeText(text) {
-    return text
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
-      .replace(/[-\s]/g, ''); // Supprime tirets et espaces
+    return text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[-\s]/g, '');
   }
 
   function filterCountries(searchTerm) {
-    const normalizedSearch = normalizeText(searchTerm);
-    return sortedCountries.filter(country => 
-      normalizeText(country).includes(normalizedSearch)
-    ).slice(0, 10);
+    const n = normalizeText(searchTerm);
+    return sortedCountries.filter(country => normalizeText(country).includes(n)).slice(0, 10);
   }
 
   function showDropdown(countries) {
     paysDropdown.innerHTML = '';
-    if (countries.length === 0) {
-      paysDropdown.style.display = 'none';
-      return;
-    }
-    
-    countries.forEach((country, index) => {
+    if (countries.length === 0) { paysDropdown.style.display = 'none'; return; }
+    countries.forEach((country) => {
       const option = document.createElement('div');
       option.className = 'pays-option';
       option.textContent = country;
       option.addEventListener('click', () => selectCountry(country));
       paysDropdown.appendChild(option);
     });
-    
     paysDropdown.style.display = 'block';
     currentSelection = -1;
   }
@@ -620,120 +619,67 @@ afficherHistorique();
     selectedCountry = country;
     paysInput.value = country;
     paysDropdown.style.display = 'none';
-    checkVisa(); // Vérification automatique
+    checkVisa();
   }
 
-  function hideDropdown() {
-    setTimeout(() => {
-      paysDropdown.style.display = 'none';
-    }, 200);
-  }
+  function hideDropdown() { setTimeout(() => { paysDropdown.style.display = 'none'; }, 200); }
 
   function updateSelection(direction) {
     const options = paysDropdown.querySelectorAll('.pays-option');
     if (options.length === 0) return;
-    
-    if (currentSelection >= 0) {
-      options[currentSelection].classList.remove('selected');
-    }
-    
+    if (currentSelection >= 0) options[currentSelection].classList.remove('selected');
     currentSelection += direction;
     if (currentSelection < 0) currentSelection = options.length - 1;
     if (currentSelection >= options.length) currentSelection = 0;
-    
     options[currentSelection].classList.add('selected');
     options[currentSelection].scrollIntoView({ block: 'nearest' });
   }
 
-  // Fonction de vérification automatique
   function checkVisa() {
     const pays = selectedCountry || paysInput.value.trim();
     const duree = document.getElementById('duree').value;
     const resultat = document.getElementById('resultat');
-    
-    if (!pays || !allCountries.includes(pays)) {
-      resultat.innerHTML = '';
-      return;
-    }
-    
+    if (!pays || !allCountries.includes(pays)) { resultat.innerHTML=''; return; }
     const needsVisa = visaData[duree][pays];
     let html = '';
-    
     if (needsVisa) {
-      html = `<span style="color: #cc0000;">Visa requis</span> pour ce séjour (${duree === 'court' ? 'court (<90j)' : 'long (>90j)'}). ` +
+      html = `<span style="color: #cc0000;">Visa requis</span> pour ce séjour (${duree === 'court' ? 'court (&lt;90j)' : 'long (&gt;90j)'}). ` +
              `Voir la procédure sur <a href="https://france-visas.gouv.fr/web/france-visas/assistant-visa" target="_blank" rel="noopener">France-Visas</a>.`;
     } else {
-      html = `<span style="color: #008000;">Pas de visa requis</span> pour ce séjour (${duree === 'court' ? 'court (<90j)' : 'long (>90j)'}). ` +
+      html = `<span style="color: #008000;">Pas de visa requis</span> pour ce séjour (${duree === 'court' ? 'court (&lt;90j)' : 'long (&gt;90j)'}). ` +
              `Vérifier conditions particulières sur <a href="https://france-visas.gouv.fr/web/france-visas/assistant-visa" target="_blank" rel="noopener">France-Visas</a>.`;
     }
-
     if (!needsVisa && duree === 'court' && biometricExemptions.includes(pays)) {
       html += ` <br><small>Note : l'exemption peut demander un passeport biométrique.</small>`;
     }
-    
     resultat.innerHTML = html;
   }
 
-  // Event listeners
+  // Events
   paysInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.trim();
     selectedCountry = '';
-    
-    if (searchTerm.length === 0) {
-      paysDropdown.style.display = 'none';
-      document.getElementById('resultat').innerHTML = '';
-      return;
-    }
-    
-    const filtered = filterCountries(searchTerm);
-    showDropdown(filtered);
+    if (!searchTerm.length) { paysDropdown.style.display='none'; document.getElementById('resultat').innerHTML=''; return; }
+    showDropdown(filterCountries(searchTerm));
   });
-
   paysInput.addEventListener('keydown', (e) => {
-    const dropdown = paysDropdown;
-    const options = dropdown.querySelectorAll('.pays-option');
-    
-    if (dropdown.style.display === 'none' || options.length === 0) return;
-    
+    const options = paysDropdown.querySelectorAll('.pays-option');
+    if (paysDropdown.style.display === 'none' || options.length === 0) return;
     switch(e.key) {
-      case 'ArrowDown':
-        e.preventDefault();
-        updateSelection(1);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        updateSelection(-1);
-        break;
-      case 'Enter':
-        e.preventDefault();
-        if (currentSelection >= 0) {
-          selectCountry(options[currentSelection].textContent);
-        }
-        break;
-      case 'Escape':
-        paysDropdown.style.display = 'none';
-        break;
+      case 'ArrowDown': e.preventDefault(); updateSelection(1); break;
+      case 'ArrowUp': e.preventDefault(); updateSelection(-1); break;
+      case 'Enter': e.preventDefault(); if (currentSelection >= 0) selectCountry(options[currentSelection].textContent); break;
+      case 'Escape': paysDropdown.style.display = 'none'; break;
     }
   });
-
   paysInput.addEventListener('blur', hideDropdown);
-  paysInput.addEventListener('focus', (e) => {
-    if (e.target.value.trim()) {
-      const filtered = filterCountries(e.target.value);
-      showDropdown(filtered);
-    }
-  });
-
-  // Event listener pour le changement de durée
+  paysInput.addEventListener('focus', (e) => { if (e.target.value.trim()) showDropdown(filterCountries(e.target.value)); });
   document.getElementById('duree').addEventListener('change', checkVisa);
 
-  // Fonction globale pour rétrocompatibilité (au cas où)
   window.verifierVisa = checkVisa;
-
   window._esiVisaData = { allCountries, neverNeed, shortExempt, visaData, biometricExemptions };
-  console.debug("ESI+Visa: visaData initialisé pour", allCountries.length, "pays. Voir window._esiVisaData.");
+  console.debug("ESI+Visa: visaData initialisé pour", allCountries.length, "pays.");
 })();
-
 </script>
 
 </body>
