@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>CR Gendarmerie</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#2c3e50">
@@ -13,19 +13,16 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
 <style>
-  * {
-    -webkit-tap-highlight-color: transparent;
-  }
-
+ 
   body {
     font-family: verdana, sans-serif;
     margin: 0;
-    padding: 0;
+    padding: 0; /* on enlève tout le padding */
     background: #f0f2f5;
     color: #222;
     min-height: 100vh;
     box-sizing: border-box;
-    touch-action: manipulation;
+	touch-action: manipulation;
   }
 
   /* Page d'accueil */
@@ -34,8 +31,7 @@
     flex-direction: column;
     min-height: 100vh;
     text-align: center;
-    padding: 10px;
-    padding-bottom: 30px;
+    padding: 20px;
   }
 
   /* Bandeau titre propre (uniquement accueil) */
@@ -45,7 +41,7 @@
     font-size: 1.5em;
     text-align: center;
     padding: 20px;
-    margin: -10px -10px 20px -10px;
+    margin: 0 0 30px 0; /* colle bien en haut, espace dessous */
   }
 
   #homePage .home-title .sous-titre {
@@ -58,12 +54,9 @@
   /* Grille icônes */
   .app-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 15px;
     padding: 10px;
-    max-width: 600px;
-    margin: 0 auto;
-    width: 100%;
   }
 
   .icon-button {
@@ -71,39 +64,33 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-width: 100px;
-    min-height: 100px;
-    aspect-ratio: 1;
-    border-radius: 16px;
+    width: 120px;
+    height: 120px;
+    border-radius: 20px;
     background: #ffffff;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
     cursor: pointer;
-    transition: transform 0.15s ease, box-shadow 0.15s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     border: none;
     font-family: inherit;
-    padding: 12px 8px;
-  }
-
-  .icon-button:active {
-    transform: scale(0.95);
   }
 
   .icon-button:hover {
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transform: scale(1.05);
+    box-shadow: 0 6px 12px rgba(0,0,0,0.3);
   }
 
   .icon-button i {
-    font-size: 32px;
-    margin-bottom: 6px;
+    font-size: 40px;
+    margin-bottom: 8px;
     color: #0d6efd;
   }
 
   .icon-button span {
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
     color: #333;
     text-align: center;
-    line-height: 1.2;
   }
 
   /* Couleurs spécifiques pour chaque icône */
@@ -139,6 +126,7 @@
     display: flex;
     align-items: center;
     gap: 15px;
+    margin: -10px -10px 20px -10px;
     position: sticky;
     top: 0;
     z-index: 100;
@@ -148,23 +136,17 @@
     background: rgba(255,255,255,0.2);
     border: none;
     color: white;
-    padding: 10px 14px;
+    padding: 10px;
     border-radius: 8px;
     cursor: pointer;
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 16px;
-    min-width: 44px;
-    min-height: 44px;
+    font-size: 1em;
   }
 
   .back-button:hover {
     background: rgba(255,255,255,0.3);
-  }
-
-  .back-button:active {
-    transform: scale(0.97);
   }
 
   .page-title {
@@ -174,10 +156,9 @@
   }
 
   .page-content {
-    padding: 15px;
+    padding: 0 10px;
     max-width: 900px;
     margin: 0 auto;
-    padding-bottom: 40px;
   }
 
   /* Styles formulaires */
@@ -188,59 +169,49 @@
 
   label {
     display: block;
-    margin: 8px 0 4px 0;
+    margin: 6px 0 3px 0;
     font-weight: 500;
-    font-size: 15px;
   }
 
   input[type=text], input[type=date], input[type=time], input[type=number], select {
     width: 100%;
-    padding: 12px 10px;
+    padding: 8px 10px;
     box-sizing: border-box;
-    border-radius: 8px;
-    border: 2px solid #ddd;
-    font-size: 16px;
-    margin-bottom: 12px;
-    -webkit-appearance: none;
-    appearance: none;
-    background-color: white;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    font-size: 1em;
+    margin-bottom: 8px;
   }
-
-  /* Empêche le zoom automatique sur iOS */
+  
+/* Empêche le zoom automatique sur iOS */
   @supports (-webkit-touch-callout: none) {
     input[type=text], input[type=date], input[type=time], input[type=number], select {
       font-size: 16px;
     }
   }
+  
   button {
     cursor: pointer;
     font-weight: bold;
     border: none;
-    border-radius: 8px;
-    padding: 12px 16px;
-    font-size: 16px;
-    margin: 6px 4px;
-    min-width: 44px;
-    min-height: 44px;
+    border-radius: 6px;
+    padding: 8px 12px;
+    font-size: 1em;
+    margin: 4px 2px;
+    min-width: 36px;
+    min-height: 36px;
     user-select: none;
-    transition: background-color 0.2s ease, transform 0.1s ease;
+    transition: background-color 0.2s ease;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
     gap: 6px;
   }
 
-  button:active {
-    transform: scale(0.97);
-  }
-
   button.plusminus {
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
+    width: 48px;
+    border-radius: 10px;
     font-size: 1.5em;
     background-color: #f0f0f0;
-    padding: 0;
   }
 
   button.plusminus:hover { background-color: #ddd; }
@@ -273,12 +244,9 @@
   }
 
   span[id$="Count"] {
-    font-size: 1.3em;
+    font-size: 1.2em;
     font-weight: bold;
-    margin: 0 12px;
-    display: inline-block;
-    min-width: 30px;
-    text-align: center;
+    margin: 0 10px;
   }
 
   .flex-row {
@@ -294,7 +262,6 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
-    flex-wrap: wrap;
   }
 
   .flex-row > div label {
@@ -303,98 +270,40 @@
     width: 100%;
   }
 
-  .manual-input { 
-    width: 80px; 
-    font-size: 16px; 
-    padding: 8px 6px;
-    text-align: center;
-  }
+  .manual-input { width: 80px; font-size: 1em; padding: 4px 6px; }
 
   textarea {
     width: 100%;
     min-height: 200px;
     font-family: monospace;
-    font-size: 15px;
-    padding: 12px;
+    font-size: 1em;
+    padding: 10px;
     box-sizing: border-box;
-    border-radius: 8px;
-    border: 2px solid #ddd;
+    border-radius: 6px;
+    border: 1px solid #ddd;
     resize: vertical;
   }
 
-  .small-note { 
-    font-size: 13px; 
-    color: #666; 
-    margin-top: 8px; 
-    margin-bottom: 15px;
-    line-height: 1.4;
-  }
+  .small-note { font-size: 0.85em; color: #666; margin-top: 5px; margin-bottom: 15px; }
 
   /* Responsive */
-  @media (max-width: 768px) {
-    .page-content {
-      padding: 10px;
-    }
-    
-    .vehicle-card {
-      padding: 12px;
-    }
-    
-    .flex-row > div {
-      width: 100%;
-      justify-content: flex-start;
-    }
-    
-    .manual-input {
-      width: 70px;
-    }
+  @media (max-width: 1024px) {
+    .icon-button { width: 100px; height: 100px; }
+    .icon-button i { font-size: 32px; }
   }
 
-  @media (max-width: 480px) {
-    #homePage .home-title {
-      font-size: 1.3em;
-      padding: 15px 10px;
-      margin: -10px -10px 15px -10px;
-    }
-    
-    .app-grid {
-      gap: 8px;
-      padding: 8px;
-    }
-    
-    .icon-button {
-      min-width: 85px;
-      min-height: 85px;
-      border-radius: 12px;
-      padding: 8px 6px;
-    }
-    
-    .icon-button i { font-size: 26px; }
-    .icon-button span { font-size: 10.5px; }
-    
-    .page-header {
-      padding: 12px 15px;
-    }
-    
-    .page-title {
-      font-size: 1.1em;
-    }
-    
-    button {
-      padding: 10px 14px;
-      font-size: 15px;
-    }
-    
-    label {
-      font-size: 14px;
-    }
+  @media (max-width: 768px) {
+    .app-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 5px; }
+    .icon-button { width: 100%; height: 90px; }
+    .icon-button i { font-size: 28px; }
+    .icon-button span { font-size: 12px; }
   }
 
   /* Titres page Fiche identité */
   #ficheIdentitePage h2 {
     background-color: #003366 !important;
     color: white !important;
-    padding: 10px 12px;
+    padding: 8px 12px;
     border-radius: 6px;
     text-align: center;
     margin-top: 20px;
@@ -407,205 +316,134 @@
   #ficheIdentitePage .blue { background-color: #3498db; color: white; }
   #ficheIdentitePage .blue:hover { background-color: #2980b9; }
 
-  #infosPage input,
-  #infosPage select {
-    border: 2px solid #000;
-    border-radius: 6px;
-    background-color: #fff;
-    color: #2c3e50;
-    padding: 12px 10px;
-    font-size: 16px;
-    box-sizing: border-box;
-  }
+#infosPage input,
+#infosPage select {
+  border: 2px solid #000;     /* noir */
+  border-radius: 6px;
+  background-color: #fff;
+  color: #2c3e50;
+  padding: 8px 10px;
+  font-size: 1em;
+  box-sizing: border-box;
+}
+  
+#homePage {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  text-align: center;
+  padding: 20px;
+  box-sizing: border-box;
+}
 
-  /* Empêche tout scroll horizontal */
-  html, body {
-    overflow-x: hidden;
-  }
+/* Bandeau accueil */
+#homePage .home-title {
+  background: #003366;
+  color: white;
+  font-size: 1.5em;
+  text-align: center;
+  padding: 20px;
+  margin-top: -20px;   /* enlève le padding haut */
+  margin-left: -20px;  /* enlève le padding gauche */
+  margin-right: -20px; /* enlève le padding droit */
+  margin-bottom: 30px; /* espace sous le bandeau */
+}
 
-  /* On cache le radio natif */
-  #pulsarPage input[type="radio"] {
-    display: none;
-  }
+#homePage .home-title .sous-titre {
+  font-size: 0.6em;
+  font-weight: normal;
+  display: block;
+  margin-top: 8px;
+}
 
-  /* Style de base des boutons Pulsar */
-  #pulsarPage label {
-    display: inline-block;
-    margin: 15px;
-    cursor: pointer;
-  }
+/* Empêche tout scroll horizontal */
+html, body {
+  overflow-x: hidden;
+}
 
-  #pulsarPage label span {
-    display: inline-block;
-    padding: 20px 50px;
-    border: 2px solid #ccc;
-    border-radius: 14px;
-    font-size: 1.4em;
-    font-weight: bold;
-    background: #f9f9f9;
-    color: #333;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.2);
-    transition: all 0.2s ease;
-    min-width: 120px;
-    text-align: center;
-  }
+/* Corrige les pages internes qui ont des marges négatives */
+.page {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-  /* Effet hover */
-  #pulsarPage label span:hover {
-    background: #eee;
-  }
+/* On cache le radio natif */
+#pulsarPage input[type="radio"] {
+  display: none;
+}
 
-  #pulsarPage label span:active {
-    transform: scale(0.97);
-  }
+/* Style de base des boutons */
+#pulsarPage label {
+  display: inline-block;
+  margin: 15px;
+  cursor: pointer;
+}
 
-  /* ✅ Bouton Oui sélectionné */
-  #pulsarPage input[type="radio"]:checked + span.yes {
-    background: #2ecc71;
-    color: #fff;
-    border-color: #27ae60;
-  }
+#pulsarPage label span {
+  display: inline-block;
+  padding: 20px 50px;
+  border: 2px solid #ccc;
+  border-radius: 14px;
+  font-size: 1.6em;
+  font-weight: bold;
+  background: #f9f9f9;
+  color: #333;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: all 0.2s ease;
+}
 
-  /* ❌ Bouton Non sélectionné */
-  #pulsarPage input[type="radio"]:checked + span.no {
-    background: #e74c3c;
-    color: #fff;
-    border-color: #c0392b;
-  }
+/* Effet hover */
+#pulsarPage label span:hover {
+  background: #eee;
+}
 
-  /* Style pour les listes d'items (ESR, ESI, Passeurs) */
-  .fiche {
-    background: #f8f9fa;
-    padding: 12px;
-    margin: 10px 0;
-    border-radius: 8px;
-    border: 1px solid #ddd;
-    line-height: 1.6;
-  }
+/* ✅ Bouton Oui sélectionné */
+#pulsarPage input[type="radio"]:checked + span.yes {
+  background: #2ecc71;    /* vert */
+  color: #fff;
+  border-color: #27ae60;
+}
 
-  /* Date de naissance et heure/date intervention */
-  .date-naissance, .heure-date {
-    display: flex;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  .date-naissance input {
-    flex: 1;
-  }
-
-  .heure-date input {
-    flex: 1;
-  }
-
-  /* Pièces d'identité */
-  #piecesIdentite {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    margin-bottom: 12px;
-  }
-
-  #piecesIdentite label {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 0;
-    padding: 8px;
-    background: #f8f9fa;
-    border-radius: 6px;
-    cursor: pointer;
-  }
-
-  #piecesIdentite input[type="checkbox"] {
-    width: auto;
-    min-width: 20px;
-    min-height: 20px;
-    margin: 0;
-  }
-
-  /* Autocomplétion pays */
-  .autocomplete-container {
-    position: relative;
-    width: 100%;
-    margin-bottom: 15px;
-  }
-
-  #paysDropdown {
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: white;
-    border: 2px solid #3498db;
-    border-top: none;
-    border-radius: 0 0 8px 8px;
-    max-height: 250px;
-    overflow-y: auto;
-    z-index: 1000;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.15);
-  }
-
-  .pays-option {
-    padding: 12px;
-    cursor: pointer;
-    border-bottom: 1px solid #eee;
-    font-size: 15px;
-  }
-
-  .pays-option:hover, .pays-option.selected {
-    background-color: #e3f2fd;
-  }
-
-  .pays-option:last-child {
-    border-bottom: none;
-  }
-
-  /* Modal QR */
-  #qrModal {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 1000;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  #qrModal > div {
-    background: #fff;
-    padding: 20px;
-    border-radius: 12px;
-    max-width: 600px;
-    width: 100%;
-    max-height: 90vh;
-    overflow-y: auto;
-  }
-
-  #qr-reader {
-    width: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-
-  #scanLog {
-    max-height: 120px;
-    overflow: auto;
-    margin-top: 10px;
-    font-size: 14px;
-    background: #f0f0f0;
-    padding: 8px;
-    border-radius: 6px;
-  }
-
-  /* Responsive mobile pour Pulsar */
+/* ❌ Bouton Non sélectionné */
+#pulsarPage input[type="radio"]:checked + span.no {
+  background: #e74c3c;    /* rouge */
+  color: #fff;
+  border-color: #c0392b;
+}
+ /* Responsive mobile pour Pulsar */
   @media (max-width: 480px) {
     #pulsarPage label span {
       padding: 18px 40px;
       font-size: 1.2em;
     }
   }
+.form-box {
+  max-width: 350px;         /* largeur réduite */
+  margin: 20px auto;        /* centré horizontalement */
+  padding: 15px;
+  border: 2px solid #3498db; /* bordure sympa */
+  border-radius: 10px;       /* coins arrondis */
+  background: #fff;          /* fond blanc */
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* petite ombre */
+}
+
+.form-box label {
+  display: block;
+  margin: 10px 0 5px;
+  font-weight: bold;
+}
+
+.form-box select,
+.form-box input {
+  width: 100%;
+  padding: 8px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 1em;
+}
+
 </style>
 
 <script src="https://unpkg.com/html5-qrcode"></script>
@@ -679,11 +517,12 @@
       <i class="fas fa-passport"></i>
       <span>Assistant Visas</span>
     </button>
+	<button id="scanQrBtn" class="icon-button icon-qr" onclick="showPage('qrPage')">
+  <i class="fas fa-qrcode"></i>
+  <span>QR Code</span>
+</button>
 
-    <button id="scanQrBtn" class="icon-button icon-qr" onclick="showPage('qrPage')">
-      <i class="fas fa-qrcode"></i>
-      <span>QR Code</span>
-    </button>
+
   </div>
 </div>
 
@@ -696,31 +535,25 @@
     </button>
     <div class="page-title">Informations</div>
   </div>
-  <div class="page-content">
-    <label for="siteSelect">Site :</label>
-    <select id="siteSelect" aria-label="Sélection du site">
-      <option value="Breil">Breil</option>
-      <option value="La Turbie">La Turbie</option>
-      <option value="DSI Tende">DSI Tende</option>
-    </select>
+  <div class="form-box">
+  <label for="siteSelect">Site :</label>
+  <select id="siteSelect">
+    <option>La Turbie</option>
+    <!-- autres sites -->
+  </select>
 
-    <div class="flex-row">
-      <div class="flex-col">
-        <label for="dateInput">Date :</label>
-        <input type="date" id="dateInput" />
-      </div>
-      <div class="flex-col">
-        <label for="heureDebutInput">Heure début :</label>
-        <input type="time" id="heureDebutInput" />
-      </div>
-      <div class="flex-col">
-        <label for="heureFinInput">Heure fin :</label>
-        <input type="time" id="heureFinInput" />
-      </div>
-    </div>
-  </div>
+  <label for="date">Date :</label>
+  <input type="date" id="date">
+
+  <label for="start">Heure début :</label>
+  <input type="time" id="start">
+
+  <label for="end">Heure fin :</label>
+  <input type="time" id="end">
 </div>
 
+</div>
+ 
 <!-- Page ESR -->
 <div id="esrPage" class="page">
   <div class="page-header">
@@ -1023,6 +856,7 @@
    <textarea id="observations"
               placeholder="Difficultés éventuelles (tablette, téléphone, véhicule, ...)&#10;Autres…"
               oninput="this.style.height='auto'; this.style.height=this.scrollHeight+'px';"></textarea>
+
   </div>
 </div>
 
@@ -1050,21 +884,21 @@
     <div class="page-title">PULSAR</div>
   </div>
   <div class="page-content">
-    <div style="text-align: center; margin-top: 50px;">
-      <label>
-        <input type="radio" name="pulsar" id="pulsarOui" onclick="onPulsarChange()">
-        <span class="yes">OUI</span>
-      </label>
+  <div style="text-align: center; margin-top: 50px;">
+    <label>
+      <input type="radio" name="pulsar" id="pulsarOui" onclick="onPulsarChange()">
+      <span class="yes">OUI</span>
+    </label>
 
-      <label>
-        <input type="radio" name="pulsar" id="pulsarNon" onclick="onPulsarChange()">
-        <span class="no">NON</span>
-      </label>
-    </div>
+    <label>
+      <input type="radio" name="pulsar" id="pulsarNon" onclick="onPulsarChange()">
+      <span class="no">NON</span>
+    </label>
   </div>
 </div>
+</div>
 
-<!-- Page Fiche identité -->
+<!-- Page Fiche identité (intégration ESI+Visa - partie Fiche) -->
 <div id="ficheIdentitePage" class="page">
   <div class="page-header">
     <button class="back-button" onclick="showPage('homePage')">
@@ -1073,80 +907,83 @@
     <div class="page-title">Fiche identité</div>
   </div>
   <div class="page-content">
+    <!-- Ici on intégrera le formulaire complet ESI (prochaine étape) -->
     <div id="ficheIdentiteApp">
-      <form id="ficheForm">
-        <label>Catégorie :
-          <select id="categorie">
-            <option value="ESI">ESI</option>
-            <option value="PASSEUR">PASSEUR</option>
-          </select>
-        </label>
+  <form id="ficheForm">
+    <label>Catégorie :
+      <select id="categorie">
+        <option value="ESI">ESI</option>
+        <option value="PASSEUR">PASSEUR</option>
+      </select>
+    </label>
 
-        <h2>Identité</h2>
-        <label>Nom<input type="text" id="nom" autocomplete="off" required></label>
-        <label>Prénom<input type="text" id="prenom" autocomplete="off" required></label>
-        <label>Sexe
-          <select id="sexe">
-            <option value="">--Sélectionner--</option>
-            <option value="Masculin">Masculin</option>
-            <option value="Féminin">Féminin</option>
-            <option value="Autre">Autre</option>
-          </select>
-        </label>
-        <label>Nationalité<input type="text" id="nationalite" autocomplete="off"></label>
+    <h2>Identité</h2>
+    <label>Nom<input type="text" id="nom" autocomplete="off" required></label>
+    <label>Prénom<input type="text" id="prenom" autocomplete="off" required></label>
+    <label>Sexe
+      <select id="sexe">
+        <option value="">--Sélectionner--</option>
+        <option value="Masculin">Masculin</option>
+        <option value="Féminin">Féminin</option>
+        <option value="Autre">Autre</option>
+      </select>
+    </label>
+    <label>Nationalité<input type="text" id="nationalite" autocomplete="off"></label>
 
-        <label>Date de naissance :</label>
-        <div class="date-naissance">
-          <input type="number" id="jour" placeholder="JJ" min="1" max="31" required>
-          <input type="number" id="mois" placeholder="MM" min="1" max="12" required>
-          <input type="number" id="annee" placeholder="AAAA" min="1900" max="2100" required>
-        </div>
-        <label>Âge<input type="number" id="age" readonly></label>
-
-        <h2>Intervention</h2>
-        <label>Heure et Date d'intervention :</label>
-        <div class="heure-date">
-          <input type="time" id="heure" required>
-          <input type="date" id="dateIntervention" required>
-        </div>
-        <label>Lieu d'interpellation<input type="text" id="lieuInterpellation" autocomplete="off"></label>
-        <label>Suites données<input type="text" id="suitesDonnees" autocomplete="off"></label>
-
-        <h2>Voyage</h2>
-        <label>Ville de départ<input type="text" id="villeDepart" autocomplete="off"></label>
-        <label>Pays de départ<input type="text" id="paysDepart" autocomplete="off"></label>
-        <label>Ville de destination<input type="text" id="villeDestination" autocomplete="off"></label>
-        <label>Pays de destination<input type="text" id="paysDestination" autocomplete="off"></label>
-
-        <h2>Véhicule</h2>
-        <label>Type de véhicule<input type="text" id="vehicule" autocomplete="off"></label>
-        <label>Immatriculation<input type="text" id="immatriculation" autocomplete="off"></label>
-
-        <h2>Pièces d'identité présentées</h2>
-        <div id="piecesIdentite">
-          <label><input type="checkbox" name="piece" value="Passeport valide"> Passeport valide</label>
-          <label><input type="checkbox" name="piece" value="Passeport périmé"> Passeport périmé</label>
-          <label><input type="checkbox" name="piece" value="Fiche de demande d'asile valide"> Fiche de demande d'asile valide</label>
-          <label><input type="checkbox" name="piece" value="Fiche de demande d'asile périmée"> Fiche de demande d'asile périmée</label>
-          <label><input type="checkbox" name="piece" value="Carte d'identité valide"> Carte d'identité valide</label>
-          <label><input type="checkbox" name="piece" value="Carte d'identité périmée"> Carte d'identité périmée</label>
-          <label><input type="checkbox" name="piece" value="Titre de séjour valide"> Titre de séjour valide</label>
-          <label><input type="checkbox" name="piece" value="Titre de séjour périmé"> Titre de séjour périmé</label>
-          <label><input type="checkbox" id="autreCheck" name="piece" value=""> Autre :</label>
-        </div>
-        <input type="text" id="autreTexte" placeholder="Précisez..." style="width:100%;margin-top:5px;padding:12px;font-size:16px;" disabled>
-
-        <button type="submit" class="blue">Enregistrer la fiche</button>
-      </form>
-
-      <h2>Historique des fiches</h2>
-      <div id="historique"></div>
-      <button id="effacerFiches" class="red">Effacer toutes les fiches</button>
+    <label>Date de naissance :</label>
+    <div class="date-naissance">
+      <input type="number" id="jour" placeholder="JJ" min="1" max="31" required>
+      <input type="number" id="mois" placeholder="MM" min="1" max="12" required>
+      <input type="number" id="annee" placeholder="AAAA" min="1900" max="2100" required>
     </div>
+    <label>Âge<input type="number" id="age" readonly></label>
+
+    <h2>Intervention</h2>
+    <label>Heure et Date d'intervention :</label>
+    <div class="heure-date">
+      <input type="time" id="heure" required>
+      <input type="date" id="dateIntervention" required>
+    </div>
+    <label>Lieu d'interpellation<input type="text" id="lieuInterpellation" autocomplete="off"></label>
+    <label>Suites données<input type="text" id="suitesDonnees" autocomplete="off"></label>
+
+    <h2>Voyage</h2>
+    <label>Ville de départ<input type="text" id="villeDepart" autocomplete="off"></label>
+    <label>Pays de départ<input type="text" id="paysDepart" autocomplete="off"></label>
+    <label>Ville de destination<input type="text" id="villeDestination" autocomplete="off"></label>
+    <label>Pays de destination<input type="text" id="paysDestination" autocomplete="off"></label>
+
+    <h2>Véhicule</h2>
+    <label>Type de véhicule<input type="text" id="vehicule" autocomplete="off"></label>
+    <label>Immatriculation<input type="text" id="immatriculation" autocomplete="off"></label>
+
+    <h2>Pièces d'identité présentées</h2>
+    <div id="piecesIdentite">
+      <label><input type="checkbox" name="piece" value="Passeport valide"> Passeport valide</label>
+      <label><input type="checkbox" name="piece" value="Passeport périmé"> Passeport périmé</label>
+      <label><input type="checkbox" name="piece" value="Fiche de demande d'asile valide"> Fiche de demande d'asile valide</label>
+      <label><input type="checkbox" name="piece" value="Fiche de demande d'asile périmée"> Fiche de demande d'asile périmée</label>
+      <label><input type="checkbox" name="piece" value="Carte d'identité valide"> Carte d'identité valide</label>
+      <label><input type="checkbox" name="piece" value="Carte d'identité périmée"> Carte d'identité périmée</label>
+      <label><input type="checkbox" name="piece" value="Titre de séjour valide"> Titre de séjour valide</label>
+      <label><input type="checkbox" name="piece" value="Titre de séjour périmé"> Titre de séjour périmé</label>
+      <label><input type="checkbox" id="autreCheck" name="piece" value=""> Autre :</label>
+    </div>
+    <input type="text" id="autreTexte" placeholder="Précisez..." style="width:100%;margin-top:5px;padding:8px;" disabled>
+
+    <button type="submit" class="blue">Enregistrer la fiche</button>
+
+  </form>
+
+  <h2>Historique des fiches</h2>
+  <div id="historique"></div>
+  <button id="effacerFiches" class="red">Effacer toutes les fiches</button>
+</div>
+
   </div>
 </div>
 
-<!-- Page Assistant Visas -->
+<!-- Page Assistant Visas (intégration ESI+Visa - partie Assistant) -->
 <div id="assistantVisaPage" class="page">
   <div class="page-header">
     <button class="back-button" onclick="showPage('homePage')">
@@ -1155,27 +992,30 @@
     <div class="page-title">Assistant Visas</div>
   </div>
   <div class="page-content">
+    <!-- Ici on intégrera l'Assistant Visa France (prochaine étape) -->
     <div id="assistantVisaApp">
-      <h2>Mini Assistant Visa France</h2>
-      <label for="paysInput">Sélectionnez votre pays :</label><br>
-      <div class="autocomplete-container">
-        <input type="text" id="paysInput" placeholder="Tapez le nom du pays..." autocomplete="off">
-        <div id="paysDropdown"></div>
-      </div><br>
+  <h2>Mini Assistant Visa France</h2>
+  <label for="paysInput">Sélectionnez votre pays :</label><br>
+  <div class="autocomplete-container">
+    <input type="text" id="paysInput" placeholder="Tapez le nom du pays..." autocomplete="off">
+    <div id="paysDropdown"></div>
+  </div><br>
 
-      <label for="duree">Type de séjour :</label><br>
-      <select id="duree">
-        <option value="court">Courte durée (&lt;90 jours)</option>
-        <option value="long">Longue durée (&gt;90 jours)</option>
-      </select><br>
+  <label for="duree">Type de séjour :</label><br>
+  <select id="duree">
+    <option value="court">Courte durée (&lt;90 jours)</option>
+    <option value="long">Longue durée (&gt;90 jours)</option>
+  </select><br>
 
-      <p id="resultat"></p>
-      
-      <p>LIENS UTILES:</p> 
-      <a href="https://www.visa-schengen.info/voyager-en-europe/pays-exemptes/" target="_blank">Pays exemptés de visas</a><br><br>
-      <a href="https://www.visa-schengen.info/voyager-en-europe/pays-concernes/" target="_blank">Pays concernés</a><br><br>
-      <a href="https://www.immigration.interieur.gouv.fr/fr/Immigration/Les-visas" target="_blank">Les visas/immigration</a>   
-    </div>
+  <p id="resultat"></p>
+  
+  
+  <p>LIENS UTILES:</p> <a href="https://www.visa-schengen.info/voyager-en-europe/pays-exemptes/" target="blank">Pays exemptés de visas</a><br><br>
+                <a href="https://www.visa-schengen.info/voyager-en-europe/pays-concernes/" target="blank">Pays concernés</a><br><br>
+				<a href="https://www.immigration.interieur.gouv.fr/fr/Immigration/Les-visas" target="blank">Les visas/immigration</a>   
+							
+</div>
+
   </div>
 </div>
 
@@ -1189,16 +1029,17 @@
   </div>
   <div class="page-content">
     <div style="text-align:center; margin-bottom: 20px;">
-      <button id="generateBtn" class="blue" style="padding:14px 24px; font-size:16px;">Générer compte rendu</button>
-      <button id="copyBtn" class="green" style="padding:14px 24px; font-size:16px;">Copier dans le presse-papiers</button>
-      <button id="resetBtn" class="red" style="font-size:16px;">Effacer les données sauvegardées</button>
+      <button id="generateBtn" class="blue" style="padding:12px 24px; font-size:1.1em;">Générer compte rendu</button>
+      <button id="copyBtn" class="green" style="padding:12px 24px; font-size:1.1em;">Copier dans le presse-papiers</button>
+      <button id="resetBtn" class="red" style="font-size:1.1em;">Effacer les données sauvegardées</button>
     </div>
 
     <h3>Compte rendu généré :</h3>
     <textarea id="compteRendu" readonly style="font-family:Verdana; white-space:pre-wrap; overflow:hidden;"></textarea>
+
+    
   </div>
 </div>
-
 <!-- Page QR Code -->
 <div id="qrPage" class="page">
   <div class="page-header">
@@ -1217,15 +1058,17 @@
   </div>
 </div>
 
+
 <!-- QR Modal -->
-<div id="qrModal" style="display:none;">
-  <div>
+<div id="qrModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+  <div style="background:#fff; padding:20px; border-radius:10px; max-width:600px; width:90%;">
     <h2>Scanner un QR code</h2>
-    <div id="qr-reader"></div>
-    <div id="scanLog"></div>
-    <button onclick="closeQrModal()" style="margin-top:15px; padding:12px 20px;">Fermer</button>
+    <div id="qr-reader" style="width:100%;"></div>
+    <div id="scanLog" style="max-height:120px; overflow:auto; margin-top:10px; font-size:0.9em; background:#f0f0f0; padding:6px;"></div>
+    <button onclick="closeQrModal()" style="margin-top:10px; padding:8px 16px;">Fermer</button>
   </div>
 </div>
+
 
 <script>
 // Navigation entre les pages
