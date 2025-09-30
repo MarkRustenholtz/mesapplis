@@ -327,31 +327,23 @@
   box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
 
-/* Espacements compacts + labels au-dessus */
-#infosPage .page-content label{
-  display:block;
-  margin: 12px 0 6px;
-  font-weight: 600;
+/* Ajuste la présentation des champs dans Infos */
+#infosPage .flex-row {
+  display: flex;
+  flex-direction: column;   /* toujours vertical */
+  align-items: stretch;     /* occupe toute la largeur au lieu d'être centrés */
+  gap: 6px;                 /* espace réduit entre champs */
+  margin-bottom: 10px;
 }
 
-/* Champs sur toute la largeur du bloc */
-#infosPage .page-content input[type="date"],
-#infosPage .page-content input[type="time"],
-#infosPage .page-content input[type="text"],
-#infosPage .page-content select{
-  display:block;
-  width:100%;
-  box-sizing:border-box;
-  padding:10px 12px;
-  border:1px solid #cfd6e3;
-  border-radius:8px;
-  font-size:16px;            /* évite le zoom iOS */
-  background:#fff;
+#infosPage .flex-col {
+  min-width: auto;          /* plus de largeur minimum inutile */
+  flex: none;               /* évite l'étirement bizarre */
 }
 
-/* Supprime les grands vides verticaux éventuels */
-#infosPage .page-content > *{ margin-top:0; }
-#infosPage .page-content > * + *{ margin-top:10px; }
+#infosPage .flex-col label {
+  margin-bottom: 4px;
+}
 
   
 #homePage {
