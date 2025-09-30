@@ -316,16 +316,43 @@
   #ficheIdentitePage .blue { background-color: #3498db; color: white; }
   #ficheIdentitePage .blue:hover { background-color: #2980b9; }
 
-#infosPage input,
-#infosPage select {
-  border: 2px solid #000;     /* noir */
-  border-radius: 6px;
-  background-color: #fff;
-  color: #2c3e50;
-  padding: 8px 10px;
-  font-size: 1em;
-  box-sizing: border-box;
+/* Carte centrée et resserrée pour la page Informations */
+#infosPage .page-content{
+  max-width: 520px;          /* largeur du bloc */
+  margin: 16px auto;         /* centré */
+  padding: 16px;
+  border: 2px solid #1f6fb2; /* bordure */
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
+
+/* Espacements compacts + labels au-dessus */
+#infosPage .page-content label{
+  display:block;
+  margin: 12px 0 6px;
+  font-weight: 600;
+}
+
+/* Champs sur toute la largeur du bloc */
+#infosPage .page-content input[type="date"],
+#infosPage .page-content input[type="time"],
+#infosPage .page-content input[type="text"],
+#infosPage .page-content select{
+  display:block;
+  width:100%;
+  box-sizing:border-box;
+  padding:10px 12px;
+  border:1px solid #cfd6e3;
+  border-radius:8px;
+  font-size:16px;            /* évite le zoom iOS */
+  background:#fff;
+}
+
+/* Supprime les grands vides verticaux éventuels */
+#infosPage .page-content > *{ margin-top:0; }
+#infosPage .page-content > * + *{ margin-top:10px; }
+
   
 #homePage {
   display: flex;
@@ -418,31 +445,7 @@ html, body {
       font-size: 1.2em;
     }
   }
-.form-box {
-  max-width: 350px;         /* largeur réduite */
-  margin: 20px auto;        /* centré horizontalement */
-  padding: 15px;
-  border: 2px solid #3498db; /* bordure sympa */
-  border-radius: 10px;       /* coins arrondis */
-  background: #fff;          /* fond blanc */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1); /* petite ombre */
-}
 
-.form-box label {
-  display: block;
-  margin: 10px 0 5px;
-  font-weight: bold;
-}
-
-.form-box select,
-.form-box input {
-  width: 100%;
-  padding: 8px;
-  margin-bottom: 12px;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  font-size: 1em;
-}
 
 </style>
 
@@ -535,24 +538,29 @@ html, body {
     </button>
     <div class="page-title">Informations</div>
   </div>
-  <div class="form-box">
-  <label for="siteSelect">Site :</label>
-  <select id="siteSelect">
-    <option>Breil</option>
-    <option>La Turbie</option>
-	<option>DSI Tende</option>
-  </select>
+  <div class="page-content">
+    <label for="siteSelect">Site :</label>
+    <select id="siteSelect" aria-label="Sélection du site">
+      <option value="Breil">Breil</option>
+      <option value="La Turbie">La Turbie</option>
+      <option value="DSI Tende">DSI Tende</option>
+    </select>
 
-  <label for="date">Date :</label>
-  <input type="date" id="date">
-
-  <label for="start">Heure début :</label>
-  <input type="time" id="start">
-
-  <label for="end">Heure fin :</label>
-  <input type="time" id="end">
+    <div class="flex-row">
+      <div class="flex-col">
+        <label for="dateInput">Date :</label>
+        <input type="date" id="dateInput" />
+      </div>
+      <div class="flex-col">
+        <label for="heureDebutInput">Heure début :</label>
+        <input type="time" id="heureDebutInput" />
+      </div>
+      <div class="flex-col">
+        <label for="heureFinInput">Heure fin :</label>
+        <input type="time" id="heureFinInput" />
+      </div>
 </div>
-
+</div>
 </div>
  
 <!-- Page ESR -->
